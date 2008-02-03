@@ -20,7 +20,8 @@
 <!ENTITY graph1005 "img/sline">
 <!ENTITY graph1006 "img/spath">
 <!ENTITY graph1007 "img/spoly">
-<!ENTITY graph1008 "img/sbox"> ]>
+<!ENTITY graph1008 "img/sbox">
+<!ENTITY graph1009 "img/logo"> ]>
 
 <article lang="en">
     <articleinfo>
@@ -32,10 +33,14 @@
         </author>
         <abstract>
             <para>
+                <graphic fileref="&graph1009;"/>
                 <productname>pgSphere</productname> provides spherical data
                 types, functions, and operators for
                 <application>PostgreSQL</application>. This document
                 describes installation and usage of this module.
+            </para>
+            <para>
+              The project is hosted at <ulink url="http://pgfoundry.org/projects/pgsphere/"><citetitle>pgfoundry.org</citetitle></ulink>
             </para>
         </abstract>
     </articleinfo>

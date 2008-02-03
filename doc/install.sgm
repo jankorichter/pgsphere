@@ -6,11 +6,10 @@
             <title>
                 Download
             </title>
-            <para>
-                Currently, <productname>pgSphere</productname> is not yet
-                part of the <application>PostgreSQL</application> software. 
-                You can download it from the
-                <productname>pgSphere</productname> homepage.
+            <para>  
+                <productname>pgSphere</productname> is not part of the <application>PostgreSQL</application> software. 
+                You can download it from the <productname>pgSphere</productname> homepage
+                <ulink url="http://pgfoundry.org/projects/pgsphere/"><citetitle>http://pgfoundry.org/projects/pgsphere/</citetitle></ulink>
             </para>
         </sect2>
 
