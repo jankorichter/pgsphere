@@ -34,13 +34,18 @@
         <abstract>
             <para>
                 <graphic fileref="&graph1009;"/>
-                <productname>pgSphere</productname> provides spherical data
+            </para>
+            <para>
+                pgSphere provides spherical data
                 types, functions, and operators for
-                <application>PostgreSQL</application>. This document
-                describes installation and usage of this module.
+                <application>PostgreSQL</application>.
             </para>
             <para>
               The project is hosted at <ulink url="http://pgfoundry.org/projects/pgsphere/"><citetitle>pgfoundry.org</citetitle></ulink>
+            </para>
+            <para>    
+                This document
+                describes installation and usage of this module.
             </para>
         </abstract>
     </articleinfo>
