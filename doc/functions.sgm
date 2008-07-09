@@ -278,7 +278,7 @@
             </title>
 
             <para>
-              <productname>pgSphere</productname> provides 4 functions to get
+              <application>pgSphere</application> provides 4 functions to get
               the parameters of a spherical ellipse:
             </para>
             <table frame="all" rowsep="1" colsep="1">
@@ -363,7 +363,7 @@
               </title>
               <para>
                 To get the beginning and the end of a line,
-                <productname>pgSphere</productname> provides two functions:
+                <application>pgSphere</application> provides two functions:
               </para>
               <funcsynopsis>
                 <funcprototype>
@@ -458,7 +458,7 @@
               Positions at a path
             </title>
             <para>
-              <productname>pgSphere</productname> provides two functions to
+              <application>pgSphere</application> provides two functions to
               get points at a path.
             </para>
             <funcsynopsis>

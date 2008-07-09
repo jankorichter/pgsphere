@@ -99,7 +99,11 @@
                 Point
             </title>
             <para>
-              <graphic fileref="&graph1001;"/>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="&graph1001;" width="142px" format="JPEG"/>
+                </imageobject>
+              </mediaobject>
                A spherical point is an object without expanse
                but with a position. Usage cases are:
             </para>
@@ -185,7 +189,11 @@
                 Euler transformation
             </title>
             <para>
-              <graphic fileref="&graph1003;"/>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="&graph1003;" width="160px" format="JPEG"/>
+                </imageobject>
+              </mediaobject>
               A Euler transformation is done with three counterclockwise
               object rotations around following the axes:
               <literal>x</literal>-axis, <literal>y</literal>-axis, or
@@ -254,7 +262,12 @@
                 Circle
             </title>
             <para>
-              <graphic fileref="&graph1002;"/> A spherical circle is an area
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="&graph1002;" width="142px" format="JPEG"/>
+                </imageobject>
+              </mediaobject>
+              A spherical circle is an area
               around a point, where all points inside the circle have a
               distance less than or equal to the radius of the circle.  Usage
               cases are:
@@ -304,7 +317,11 @@
                 Line
             </title>
             <para>
-              <graphic fileref="&graph1005;"/>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="&graph1005;" width="142px" format="JPEG"/>
+                </imageobject>
+              </mediaobject>
               A spherical line is part of a great circle (meridian) that has
               a beginning and an end and hence, a direction.  Usage cases are:
             </para>
@@ -374,8 +391,12 @@ i             syntax is a somewhat complex.
                 Ellipses
             </title>
             <para>
-              <graphic fileref="&graph1004;"/>
-              Within <productname>pgSphere</productname>, ellipses are
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="&graph1004;" width="142px" format="JPEG"/>
+                </imageobject>
+              </mediaobject>
+              Within <application>pgSphere</application>, ellipses are
               defined as :
             </para>
             <blockquote>
@@ -453,7 +474,7 @@ i             syntax is a somewhat complex.
                   <para>
                       The position angle <parameter>pos</parameter>
                       is defined within
-                      <productname>pgSphere</productname> as a counterclockwise
+                      <application>pgSphere</application> as a counterclockwise
                       rotation around the ellipse center and is zero, if the
                       ellipse is &ldquo;parallel to the equator&rdquo;
                   </para>
@@ -478,7 +499,12 @@ i             syntax is a somewhat complex.
                 Path
             </title>
             <para>
-              <graphic fileref="&graph1006;"/> A spherical path is a
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="&graph1006;" width="142px" format="JPEG"/>
+                </imageobject>
+              </mediaobject>
+              A spherical path is a
               concatination of spherical lines.  Usage cases are:
             </para>
             <itemizedlist>
@@ -494,7 +520,7 @@ i             syntax is a somewhat complex.
                 </listitem>
             </itemizedlist>
             <para>
-                Paths within <productname>pgSphere</productname> are simplified
+                Paths within <application>pgSphere</application> are simplified
                 lists of positions. The input syntax is :
             </para>
             <synopsis>&lcub;pos1,pos2&lsqb;,pos3&lsqb;,pos4&lsqb;,...&rsqb;&rsqb;&rsqb;&rcub;</synopsis>
@@ -530,10 +556,15 @@ i             syntax is a somewhat complex.
                 Polygon
             </title>
             <para>
-              <graphic fileref="&graph1007;"/> A spherical polygon is a
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="&graph1007;" width="142px" format="JPEG"/>
+                </imageobject>
+              </mediaobject>
+              A spherical polygon is a
               closed spherical path where line segments cannot be crossed.
               One main usage case are areas on the earth and sky sphere.
-              Polygons within <productname>pgSphere</productname> 
+              Polygons within <application>pgSphere</application> 
               have the same input syntax as paths:
             </para>
             <synopsis>&lcub;pos1,pos2,pos3&lsqb;,pos4&lsqb;,... &rsqb;&rsqb;&rcub;</synopsis>
@@ -576,7 +607,12 @@ i             syntax is a somewhat complex.
                 Coordinates range
             </title>
             <para>
-              <graphic fileref="&graph1008;"/> A spherical box is a
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="&graph1008;" width="142px" format="JPEG"/>
+                </imageobject>
+              </mediaobject>
+              A spherical box is a
               coordinates range. Hence, you can select objects within a
               longitude range and latitude range. The box is represented
               using two spherical points: the southwest
@@ -593,14 +629,14 @@ i             syntax is a somewhat complex.
                 <para>
                   If the latitude of the southwest edge is larger than
                   the latitude of the northeast edge,
-                  <productname>pgSphere</productname> swaps the edges.
+                  <application>pgSphere</application> swaps the edges.
                 </para>
               </listitem>
               <listitem>
                 <para>
                   If the longitude of the southwest edge is equal to
                   the longitude of the northeast edge,
-                  <productname>pgSphere</productname> assumes a full latitude
+                  <application>pgSphere</application> assumes a full latitude
                   range, except that the latitudes are equal, too.
                 </para>
               </listitem>

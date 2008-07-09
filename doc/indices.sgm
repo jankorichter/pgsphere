@@ -7,7 +7,7 @@
           Spherical index
         </title>
         <para>
-          <productname>pgSphere</productname> uses <literal>GiST</literal>
+          <application>pgSphere</application> uses <literal>GiST</literal>
           to create spherical indices. An index speeds up the executation
           time of operators <link
           linkend="op.over"><literal>@</literal></link>, <link
@@ -74,7 +74,7 @@
         </title>
         <para>
           There are several ways to speed up the performance of an index.
-          One way is clustering. <productname>pgSphere</productname>
+          One way is clustering. <application>pgSphere</application>
           provides a &ldquo;cluster index&rdquo;. It's just a B-tree index
           to allow sorting of the table data. It's recommended to create such
           an index before you create the spherical index. You can then drop the

@@ -7,7 +7,7 @@
                 Casting
             </title>
             <para>
-                <productname>pgSphere</productname> provides some casting
+                <application>pgSphere</application> provides some casting
                 operators. So, you can transform an object to another data
                 type. A cast is done using a <literal>CAST(x AS typename)</literal>,
                 <literal>x::typename</literal> or <literal>typename(x)</literal>
@@ -127,7 +127,7 @@
                 Equality
             </title>
             <para>
-                All data types of <productname>pgSphere</productname> have
+                All data types of <application>pgSphere</application> have
                 equality operators. The equality operator is as in
                 <literal>SQL</literal> <literal>=</literal>.  Furthermore,
                 there are two valid negators to indicate that two objects
@@ -157,7 +157,7 @@
                 <literal>b</literal>?</emphasis> or <emphasis>Does object
                 <literal>a</literal> overlap object
                 <literal>b</literal>?</emphasis> 
-                <productname>pgSphere</productname> supports such
+                <application>pgSphere</application> supports such
                 queries using binary operators returning
                 <emphasis>true</emphasis> or <emphasis>false</emphasis>:
             </para>
@@ -259,7 +259,7 @@
             </title>
             <para>
                 Another binary relationship is <emphasis>crossing</emphasis>.
-                <productname>pgSphere</productname> supports only crossing of
+                <application>pgSphere</application> supports only crossing of
                 lines.
                 The correlative operator is named <literal>&num;</literal>.
             </para>
@@ -283,7 +283,7 @@
                 The binary distance operator <literal>&lt;-&gt;</literal> is
                 a non-boolean operator returning the distance between two
                 objects in radians. Currently,
-                <productname>pgSphere</productname> supports only distances
+                <application>pgSphere</application> supports only distances
                 between points, circles, and between point and circle. If the
                 objects are overlapping, the distance operator returns zero
                 (0.0).
@@ -309,7 +309,7 @@
                 The length/circumference operator <literal>@-@</literal> is
                 a non-boolean unary operator returning the cirumference or
                 length of an object.  In the current implementation,
-                <productname>pgSphere</productname> supports only
+                <application>pgSphere</application> supports only
                 circumferences of circles, polygons, and boxes.  It supports
                 lengths of lines and paths too. Instead of using the
                 operator, you can use the functions
@@ -345,7 +345,7 @@
             <para>
                 The center operator <literal>@@</literal> is a non-boolean
                 unary operator returning the center of an object.  In the
-                current implementation of <productname>pgSphere</productname>,
+                current implementation of <application>pgSphere</application>,
                 only centers of circles and ellipses are supported. Instead
                 of using the operator, you can use the function
                 <literal>center(object)</literal>.
@@ -440,7 +440,7 @@
             <para>
                 As in a plane, translations and rotations are needed to do
                 object or coordinate transformations. With
-                <productname>pgSphere</productname>, it is done using Euler
+                <application>pgSphere</application>, it is done using Euler
                 transformations (<type>strans</type>). On a sphere, there
                 aren't real translations.  All movements on a sphere are
                 rotations around axes.
@@ -453,7 +453,7 @@
                 where operators are <literal>+</literal> for a usual
                 transformation, <literal>-</literal> for an inverse
                 transformation.  You can transform any object having a
-                <productname>pgSphere</productname> data type, except the
+                <application>pgSphere</application> data type, except the
                 data type <type>sbox</type>.
             </para>
             <example>

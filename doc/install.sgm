@@ -7,8 +7,8 @@
                 Download
             </title>
             <para>  
-                <productname>pgSphere</productname> is not part of the <application>PostgreSQL</application> software. 
-                You can download it from the <productname>pgSphere</productname> homepage
+                <application>pgSphere</application> is not part of the <application>PostgreSQL</application> software. 
+                You can download it from the <application>pgSphere</application> homepage
                 <ulink url="http://pgfoundry.org/projects/pgsphere/"><citetitle>http://pgfoundry.org/projects/pgsphere/</citetitle></ulink>
             </para>
         </sect2>
@@ -25,14 +25,14 @@
                 superuser.
             </para>
             <para>
-                There are two ways to compile <productname>pgSphere</productname>.
+                There are two ways to compile <application>pgSphere</application>.
                 The first is to copy the sources into the contribution directory of
                 <application>PostgreSQL</application>'s source tree 
                 (<filename>POSTGRESQL_SRC/src/contrib</filename>).
                 Then, change into <filename>POSTGRESQL_SRC/src/contrib</filename>. 
                 If the sources are not yet installed and the directory
                 <filename>pg_sphere</filename> does not exist, take the
-                gzipped <productname>pgSphere</productname> sources ( e.g.,
+                gzipped <application>pgSphere</application> sources ( e.g.,
                 <filename>pg_sphere_xxx.tgz</filename> ) and run:
             </para>
             <programlisting>
@@ -46,7 +46,7 @@
 <![CDATA[shell> make]]>
             </programlisting>
             <para>
-                and to install <productname>pgSphere</productname> :
+                and to install <application>pgSphere</application> :
             </para>
             <programlisting>
 <![CDATA[shell> make install]]>
@@ -56,7 +56,7 @@
               the configuration tool <application>pg_config</application>.
             </para>
             <para>
-              First unpack the <productname>pgSphere</productname> sources:
+              First unpack the <application>pgSphere</application> sources:
             </para>
             <programlisting>
 <![CDATA[shell> tar -xzf path_to_pg_sphere_xxx.tgz]]>
@@ -69,7 +69,7 @@
 <![CDATA[shell> make USE_PGXS=1 PG_CONFIG=/path/to/pg_config]]>
             </programlisting>
             <para>
-              To install <productname>pgSphere</productname> you have to run :
+              To install <application>pgSphere</application> you have to run :
             </para>
             <programlisting>
 <![CDATA[shell> make USE_PGXS=1 PG_CONFIG=/path/to/pg_config install]]>
@@ -89,7 +89,7 @@
         
         <sect2>
             <title>
-                Creating a database with <productname>pgSphere</productname>
+                Creating a database with <application>pgSphere</application>
             </title>
             <para>
                 We assume you have already created a database

@@ -1,9 +1,9 @@
     <sect1>
         <title>
-            What is <productname>pgSphere</productname>?
+            What is pgSphere?
         </title>
         <para>
-            <productname>pgSphere</productname> is an extra module for
+            <application>pgSphere</application> is an extra module for
             <application>PostgreSQL</application> which adds spherical data
             types. It provides:
         </para>
@@ -54,7 +54,7 @@
             conveniently using an <literal>SQL</literal> interface.
         </para>
         <para>
-            The aim of <productname>pgSphere</productname> is to provide 
+            The aim of <application>pgSphere</application> is to provide 
             uniform access to spherical data. Because
             <application>PostgreSQL</application> itself supports a lot of
             software interfaces, you can now use the same database

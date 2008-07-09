@@ -3,11 +3,11 @@
             Constructors
         </title>
         <para>
-          Constructors within <productname>pgSphere</productname> are
+          Constructors within <application>pgSphere</application> are
           functions needed to create spherical data types from other data
           types. In usage, there isn't a difference from
           <emphasis>usual</emphasis> <application>PostgreSQL</application>
-          functions.  <productname>pgSphere</productname> constructor
+          functions.  <application>pgSphere</application> constructor
           functions are named by returned data type. Constructor functions
           expecting one parameter only are implemented as <link
           linkend="op.casting">casting operators</link>, too. These are not
@@ -73,7 +73,7 @@
             <parameter>psi</parameter> are the three angles of <link linkend="dt.strans">
             Euler transformation</link>. The fourth parameter is the three letter code
             of Euler the transformation axis. If that parameter is omitted,
-            <productname>pgSphere</productname> will assume <literal>ZXZ</literal>.
+            <application>pgSphere</application> will assume <literal>ZXZ</literal>.
             For more information about that parameter, see <xref linkend="dt.strans"/>.
           </para>
           <example>
@@ -159,7 +159,7 @@
             returns an error because the location of the line is undefined. 
             However, if longitudes of <parameter>begin</parameter> and
             <parameter>end</parameter> are equal,
-            <productname>pgSphere</productname> assumes a meridian and
+            <application>pgSphere</application> assumes a meridian and
             returns the corresponding spherical line.
           </para>               
           <example id="const.line.1">
@@ -236,7 +236,7 @@
             parameter <parameter>major_rad</parameter> and
             <parameter>minor_rad</parameter> are the major and the minor
             radii of the ellipse in radians. If the major radius is smaller
-            than minor radius, <productname>pgSphere</productname> swaps the
+            than minor radius, <application>pgSphere</application> swaps the
             values automatically.  The last parameter
             <parameter>incl</parameter> is the inclination angle in radians. 
             For more informations about ellipses, see <xref
