@@ -103,7 +103,11 @@
 
       size       = offsetof(SPATH, p[0]) + sizeof(path->p[0]) * nelem;
       path       = (SPATH *) MALLOC ( size ) ;
+#if PG_VERSION_NUM < 80300
       path->size = size;
+#else
+      SET_VARSIZE(path, size);
+#endif
       path->npts = nelem;
       for ( i=0; i<nelem ; i++ ){
         if ( i>0 ){
@@ -482,7 +486,7 @@
   Datum  spherepath_get_point(PG_FUNCTION_ARGS)
   {
     static int32 i;
-    SPATH  * path = ( SPATH * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH  * path = PG_GETARG_SPATH( 0 ) ;
     SPoint   * sp = ( SPoint * ) MALLOC ( sizeof ( SPoint ) );
     i = PG_GETARG_INT32 ( 1 ) ;
     if ( spath_get_point ( sp , path , i-1 ) ){
@@ -495,7 +499,7 @@
   Datum  spherepath_point(PG_FUNCTION_ARGS)
   {
     static float8 i;
-    SPATH  * path = ( SPATH * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH  * path = PG_GETARG_SPATH( 0 ) ;
     SPoint   * sp = ( SPoint * ) MALLOC ( sizeof ( SPoint ) );
     i = PG_GETARG_FLOAT8 ( 1 ) ;
 
@@ -508,21 +512,21 @@
 
   Datum  spherepath_equal(PG_FUNCTION_ARGS)
   {
-    SPATH  * p1 = ( SPATH * ) PG_GETARG_POINTER ( 0 ) ;
-    SPATH  * p2 = ( SPATH * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH  * p1 = PG_GETARG_SPATH( 0 ) ;
+    SPATH  * p2 = PG_GETARG_SPATH( 1 ) ;
     PG_RETURN_BOOL ( spath_eq ( p1, p2 ) );
   }
 
   Datum  spherepath_equal_neg(PG_FUNCTION_ARGS)
   {
-    SPATH  * p1 = ( SPATH * ) PG_GETARG_POINTER ( 0 ) ;
-    SPATH  * p2 = ( SPATH * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH  * p1 = PG_GETARG_SPATH( 0 ) ;
+    SPATH  * p2 = PG_GETARG_SPATH( 1 ) ;
     PG_RETURN_BOOL ( !spath_eq ( p1, p2 ) );
   }
 
   Datum  spherepath_length(PG_FUNCTION_ARGS)
   {
-    SPATH  * path = ( SPATH * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH  * path = PG_GETARG_SPATH( 0 ) ;
     static int32 i;
     static SLine l;
     static float8 sum;
@@ -538,16 +542,16 @@
 
   Datum  spherepath_npts(PG_FUNCTION_ARGS)
   {
-    SPATH * path = ( SPATH * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH * path = PG_GETARG_SPATH( 0 ) ;
     PG_RETURN_INT32 ( path->npts );
   }
 
   Datum  spherepath_swap(PG_FUNCTION_ARGS)
   {
-    SPATH  * path = ( SPATH * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH  * path = PG_GETARG_SPATH( 0 ) ;
     static int32  i;
     static int32  n;
-    SPATH * ret    = (SPATH *) MALLOC ( path->size );
+    SPATH * ret    = (SPATH *) MALLOC ( VARSIZE(path) );
     n = path->npts - 1;
     
     for ( i=0; i<n; i++ ){
@@ -560,56 +564,56 @@
 
   Datum  spherepath_cont_point(PG_FUNCTION_ARGS)
   {
-    SPATH  * path = ( SPATH  * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH  * path = PG_GETARG_SPATH( 0 ) ;
     SPoint   * sp = ( SPoint * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( spath_cont_point ( path, sp ) );
   }
 
   Datum  spherepath_cont_point_neg(PG_FUNCTION_ARGS)
   {
-    SPATH  * path = ( SPATH  * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH  * path = PG_GETARG_SPATH( 0 ) ;
     SPoint   * sp = ( SPoint * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( !spath_cont_point ( path, sp ) );
   }
 
   Datum  spherepath_cont_point_com(PG_FUNCTION_ARGS)
   {
-    SPATH  * path = ( SPATH  * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH  * path = PG_GETARG_SPATH( 1 ) ;
     SPoint   * sp = ( SPoint * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( spath_cont_point ( path, sp ) );
   }
 
   Datum  spherepath_cont_point_com_neg(PG_FUNCTION_ARGS)
   {
-    SPATH  * path = ( SPATH  * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH  * path = PG_GETARG_SPATH( 1 ) ;
     SPoint   * sp = ( SPoint * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( !spath_cont_point ( path, sp ) );
   }
 
   Datum spherepath_overlap_line (PG_FUNCTION_ARGS)
   {
-    SPATH   * path = ( SPATH * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 0 ) ;
     SLine   * line = ( SLine * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( path_line_overlap ( path, line ) );
   }
 
   Datum spherepath_overlap_line_neg (PG_FUNCTION_ARGS)
   {
-    SPATH   * path = ( SPATH * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 0 ) ;
     SLine   * line = ( SLine * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( !path_line_overlap ( path, line ) );
   }
 
   Datum spherepath_overlap_line_com (PG_FUNCTION_ARGS)
   {
-    SPATH   * path = ( SPATH * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 1 ) ;
     SLine   * line = ( SLine * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( path_line_overlap ( path, line ) );
   }
 
   Datum spherepath_overlap_line_com_neg (PG_FUNCTION_ARGS)
   {
-    SPATH   * path = ( SPATH * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 1 ) ;
     SLine   * line = ( SLine * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( !path_line_overlap ( path, line ) );
   }
@@ -617,191 +621,191 @@
   Datum spherecircle_cont_path (PG_FUNCTION_ARGS)
   {
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 0 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 1 ) ;
     PG_RETURN_BOOL ( path_circle_pos ( path, circ ) == PGS_CIRCLE_CONT_PATH );
   }
 
   Datum spherecircle_cont_path_neg (PG_FUNCTION_ARGS)
   {
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 0 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 1 ) ;
     PG_RETURN_BOOL ( path_circle_pos ( path, circ ) != PGS_CIRCLE_CONT_PATH );
   }
 
   Datum spherecircle_cont_path_com (PG_FUNCTION_ARGS)
   {
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 0 ) ;
     PG_RETURN_BOOL ( path_circle_pos ( path, circ ) == PGS_CIRCLE_CONT_PATH );
   }
 
   Datum spherecircle_cont_path_com_neg (PG_FUNCTION_ARGS)
   {
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 0 ) ;
     PG_RETURN_BOOL ( path_circle_pos ( path, circ ) != PGS_CIRCLE_CONT_PATH );
   }
 
   Datum spherecircle_overlap_path (PG_FUNCTION_ARGS)
   {
      SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 0 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 1 ) ;
      PG_RETURN_BOOL ( path_circle_pos ( path, circ ) > PGS_CIRCLE_PATH_AVOID );
   }
 
   Datum spherecircle_overlap_path_neg (PG_FUNCTION_ARGS)
   {
      SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 0 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 1 ) ;
      PG_RETURN_BOOL ( path_circle_pos ( path, circ ) == PGS_CIRCLE_PATH_AVOID );
   }
 
   Datum spherecircle_overlap_path_com (PG_FUNCTION_ARGS)
   {
      SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 1 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 0 ) ;
      PG_RETURN_BOOL ( path_circle_pos ( path, circ ) > PGS_CIRCLE_PATH_AVOID );
   }
 
   Datum spherecircle_overlap_path_com_neg (PG_FUNCTION_ARGS)
   {
      SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 1 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 0 ) ;
      PG_RETURN_BOOL ( path_circle_pos ( path, circ ) == PGS_CIRCLE_PATH_AVOID );
   }
 
   Datum spherepoly_cont_path (PG_FUNCTION_ARGS)
   {
-     SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+     SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 1 ) ;
      PG_RETURN_BOOL ( path_poly_pos ( path, poly ) == PGS_POLY_CONT_PATH );
   }
 
   Datum spherepoly_cont_path_neg (PG_FUNCTION_ARGS)
   {
-     SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+     SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 1 ) ;
      PG_RETURN_BOOL ( path_poly_pos ( path, poly ) != PGS_POLY_CONT_PATH );
   }
 
   Datum spherepoly_cont_path_com (PG_FUNCTION_ARGS)
   {
-     SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+     SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 0 ) ;
      PG_RETURN_BOOL ( path_poly_pos ( path, poly ) == PGS_POLY_CONT_PATH );
   }
 
   Datum spherepoly_cont_path_com_neg (PG_FUNCTION_ARGS)
   {
-     SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+     SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 0 ) ;
      PG_RETURN_BOOL ( path_poly_pos ( path, poly ) != PGS_POLY_CONT_PATH );
   }
 
   Datum spherepoly_overlap_path (PG_FUNCTION_ARGS)
   {
-     SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+     SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 1 ) ;
      PG_RETURN_BOOL ( path_poly_pos ( path, poly ) != PGS_POLY_PATH_AVOID );
   }
 
   Datum spherepoly_overlap_path_neg (PG_FUNCTION_ARGS)
   {
-     SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+     SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 1 ) ;
      PG_RETURN_BOOL ( path_poly_pos ( path, poly ) == PGS_POLY_PATH_AVOID );
   }
 
   Datum spherepoly_overlap_path_com (PG_FUNCTION_ARGS)
   {
-     SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+     SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 0 ) ;
      PG_RETURN_BOOL ( path_poly_pos ( path, poly ) != PGS_POLY_PATH_AVOID );
   }
 
   Datum spherepoly_overlap_path_com_neg (PG_FUNCTION_ARGS)
   {
-     SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
-     SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+     SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
+     SPATH   * path = PG_GETARG_SPATH( 0 ) ;
      PG_RETURN_BOOL ( path_poly_pos ( path, poly ) == PGS_POLY_PATH_AVOID );
   }
 
   Datum spherepath_overlap_path (PG_FUNCTION_ARGS)
   {
-     SPATH   * p1 = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
-     SPATH   * p2 = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+     SPATH   * p1 = PG_GETARG_SPATH( 0 ) ;
+     SPATH   * p2 = PG_GETARG_SPATH( 1 ) ;
      PG_RETURN_BOOL ( path_overlap ( p1, p2 ) );
   }
 
   Datum spherepath_overlap_path_neg (PG_FUNCTION_ARGS)
   {
-     SPATH   * p1 = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
-     SPATH   * p2 = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+     SPATH   * p1 = PG_GETARG_SPATH( 0 ) ;
+     SPATH   * p2 = PG_GETARG_SPATH( 1 ) ;
      PG_RETURN_BOOL ( !path_overlap ( p1, p2 ) );
   }
 
   Datum sphereellipse_cont_path (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell = ( SELLIPSE  * ) PG_GETARG_POINTER ( 0 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 1 ) ;
     PG_RETURN_BOOL ( path_ellipse_pos ( path, ell ) == PGS_ELLIPSE_CONT_PATH );
   }
 
   Datum sphereellipse_cont_path_neg (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell = ( SELLIPSE  * ) PG_GETARG_POINTER ( 0 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 1 ) ;
     PG_RETURN_BOOL ( path_ellipse_pos ( path, ell ) != PGS_ELLIPSE_CONT_PATH );
   }
 
   Datum sphereellipse_cont_path_com (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell = ( SELLIPSE  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 0 ) ;
     PG_RETURN_BOOL ( path_ellipse_pos ( path, ell ) == PGS_ELLIPSE_CONT_PATH );
   }
 
   Datum sphereellipse_cont_path_com_neg (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell = ( SELLIPSE  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 0 ) ;
     PG_RETURN_BOOL ( path_ellipse_pos ( path, ell ) != PGS_ELLIPSE_CONT_PATH );
   }
 
   Datum sphereellipse_overlap_path (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell = ( SELLIPSE  * ) PG_GETARG_POINTER ( 0 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 1 ) ;
     PG_RETURN_BOOL ( path_ellipse_pos ( path, ell ) != PGS_ELLIPSE_PATH_AVOID );
   }
 
   Datum sphereellipse_overlap_path_neg (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell = ( SELLIPSE  * ) PG_GETARG_POINTER ( 0 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 1 ) ;
     PG_RETURN_BOOL ( path_ellipse_pos ( path, ell ) == PGS_ELLIPSE_PATH_AVOID );
   }
 
   Datum sphereellipse_overlap_path_com (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell = ( SELLIPSE  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 0 ) ;
     PG_RETURN_BOOL ( path_ellipse_pos ( path, ell ) != PGS_ELLIPSE_PATH_AVOID );
   }
 
   Datum sphereellipse_overlap_path_com_neg (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell = ( SELLIPSE  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPATH   * path = ( SPATH    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH   * path = PG_GETARG_SPATH( 0 ) ;
     PG_RETURN_BOOL ( path_ellipse_pos ( path, ell ) == PGS_ELLIPSE_PATH_AVOID );
   }
 
 
   Datum  spheretrans_path(PG_FUNCTION_ARGS)
   {
-    SPATH   * sp  =  ( SPATH   * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH   * sp  =  PG_GETARG_SPATH( 0 ) ;
     SEuler  * se  =  ( SEuler  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPATH   * out =  ( SPATH   * ) MALLOC ( sp->size );
+    SPATH   * out =  ( SPATH   * ) MALLOC ( VARSIZE(sp) );
     PG_RETURN_POINTER ( euler_spath_trans ( out , sp, se ) );
   }
 
@@ -819,22 +823,30 @@
    PG_RETURN_DATUM( ret );
   }
 
-
   Datum  spherepath_add_point(PG_FUNCTION_ARGS)
   {
     SPATH   * path  =  ( SPATH   * ) PG_GETARG_POINTER ( 0 ) ;
     SPoint  * p     =  ( SPoint  * ) PG_GETARG_POINTER ( 1 ) ;
+    int32     size  = 0 ;
+    SPATH * path_new = NULL;
+
     if ( p == NULL ){
       PG_RETURN_POINTER ( path );
     }
     if ( path == NULL ){
-      int32 size = offsetof(SPATH, p[0]) + sizeof(path->p[0]) ;
+      size = offsetof(SPATH, p[0]) + sizeof(SPoint) ;
       path = ( SPATH * ) MALLOC ( size );
       memcpy( (void*) &path->p[0] , (void*) p, sizeof(SPoint) );
+#if PG_VERSION_NUM < 80300
       path->size = size;
+#else
+      SET_VARSIZE(path, size);
+#endif
       path->npts = 1;
       PG_RETURN_POINTER ( path );
     }
+
+    path = PG_GETARG_SPATH( 0 );
 
     // skip if equal
     if ( spoint_eq (p, &path->p[ path->npts - 1 ]) ){
@@ -847,16 +859,20 @@
       elog ( NOTICE , "spath(spoint): Skip point, distance of previous point is 180deg" );
     }
 
-    path->npts++;
-    path->size = offsetof(SPATH, p[0]) + sizeof(path->p[0]) * path->npts ;
-    if ( ! repalloc( (void *) path, path->size ) ){
-      elog ( ERROR, "Error while adding spherical point");
-      PG_RETURN_NULL ( );
-    }
-    memcpy( (void*) &path->p[path->npts - 1] , (void*) p, sizeof(SPoint) );
-    PG_RETURN_POINTER ( path );
-  }        
+    size = offsetof(SPATH, p[0]) + sizeof(SPoint) * ( path->npts + 1 );
+    path_new = palloc( size );
+    memcpy( (void*) path , (void*) path_new, VARSIZE(path) );
+    path_new->npts++;
 
+#if PG_VERSION_NUM < 80300
+    path_new->size = size ;
+#else
+    SET_VARSIZE( path_new, size );
+#endif
+
+    memcpy( (void*) &path_new->p[path->npts] , (void*) p, sizeof(SPoint) );
+    PG_RETURN_POINTER ( path_new );
+  }        
 
   Datum  spherepath_add_points_finalize(PG_FUNCTION_ARGS)
   {
@@ -864,10 +880,14 @@
     if ( path == NULL ){
       PG_RETURN_NULL ( );
     }
+
+    path = PG_GETARG_SPATH( 0 );
+
     if ( path->npts < 2 ){
-      elog ( NOTICE , "spath(spoint): At least 2 points are required" );
+      elog ( NOTICE , "spath(spoint): At least 2 points required" );
       FREE ( path );
       PG_RETURN_NULL ( );
     }
     PG_RETURN_POINTER ( path );
   }
+

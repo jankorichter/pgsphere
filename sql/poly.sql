@@ -569,3 +569,9 @@ SELECT sellipse '<{2d,1d},(280d,-20d),90d>'   @  spoly '{(280d,-10d),(290d,-30d)
 SELECT sellipse '<{5d,2d},(280d,-20d),90d>'  &&  spoly '{(280d, -9d),(280d, -8d),(279d, -8d)}' ;
 SELECT sellipse '<{5d,2d},(280d,-20d),90d>'  &&  spoly '{(280d,-11d),(280d,-18d),(279d, -12d)}';
 
+-- create polygon as aggregate
+SELECT spoly(data.p) FROM ( SELECT spoint '(0,1)' as p UNION ALL SELECT spoint '(1,1)' UNION ALL SELECT '(1,0)' ) AS data ;
+
+-- test stored data
+SELECT count(id) FROM spheretmp5 WHERE id=2  AND area(p) BETWEEN 5.735555 AND 5.735556 ;
+

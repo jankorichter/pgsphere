@@ -520,7 +520,7 @@ static short int sphere_output_precision = -1;
 
   Datum spherepath_out(PG_FUNCTION_ARGS)
   {
-    SPATH * path = ( SPATH  * ) PG_GETARG_POINTER ( 0 ) ;
+    SPATH * path = PG_GETARG_SPATH( 0 ) ;
     int32  i ;
     char * out   =  ( char * ) MALLOC ( 128 * path->npts );
     char * tmp;
@@ -541,7 +541,7 @@ static short int sphere_output_precision = -1;
 
   Datum spherepoly_out(PG_FUNCTION_ARGS)
   {
-    SPOLY * poly = ( SPOLY  * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY * poly = PG_GETARG_SPOLY( 0 );
     int32  i ;
     char * out   =  ( char * ) MALLOC ( 128 * poly->npts );
     char * tmp;

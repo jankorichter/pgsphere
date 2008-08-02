@@ -198,9 +198,13 @@
         return NULL;
       }
 
-      size       = offsetof(SPOLY, p[0]) + sizeof(poly->p[0]) * nelem;
+      size       = offsetof(SPOLY, p[0]) + sizeof(SPoint) * nelem;
       poly       = (SPOLY *) MALLOC ( size ) ;
+#if PG_VERSION_NUM < 80300
       poly->size = size;
+#else
+      SET_VARSIZE(poly, size);
+#endif
       poly->npts = nelem;
       for ( i=0; i<nelem ; i++ ){
         if ( i==0 ){
@@ -238,7 +242,7 @@
   static SPOLY  * euler_spoly_trans ( SPOLY * out , const SPOLY  * in , const SEuler * se )
   {
     int32 i;
-    
+
     out->size = in->size;
     out->npts = in->npts;
     for ( i=0; i<in->npts ; i++ ){
@@ -507,7 +511,7 @@
       SPoint p , lp[2];
       bool   a1, a2, eqa ;
       int32  cntr = 0;
-      SPOLY * tmp = ( SPOLY * ) MALLOC ( pg->size );
+      SPOLY * tmp = ( SPOLY * ) MALLOC ( VARSIZE(pg) );
 
       /*
         Make a transformation, so point is (0,0)
@@ -542,14 +546,14 @@
           }
         }
         if ( eqa ){
-          SPOLY * ttt = ( SPOLY * ) MALLOC ( pg->size );
+          SPOLY * ttt = ( SPOLY * ) MALLOC ( VARSIZE(pg) );
           srand( cntr );
           se.phi_a   = se.theta_a = se.psi_a = EULER_AXIS_X  ;
           se.phi     = ( (double) rand() / RAND_MAX ) * PID ;
           se.theta   = 0.0  ;
           se.psi     = 0.0  ;
           euler_spoly_trans ( ttt , tmp , &se );
-          memcpy ( (void*) tmp, (void*) ttt, pg->size );
+          memcpy ( (void*) tmp, (void*) ttt, VARSIZE(pg) );
           FREE(ttt);
         }
         if ( cntr>10000 ){
@@ -694,21 +698,21 @@
 
   Datum  spherepoly_equal(PG_FUNCTION_ARGS)
   {
-    SPOLY  * p1 = ( SPOLY * ) PG_GETARG_POINTER ( 0 ) ;
-    SPOLY  * p2 = ( SPOLY * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY  * p1 = PG_GETARG_SPOLY( 0 ) ;
+    SPOLY  * p2 = PG_GETARG_SPOLY( 1 ) ;
     PG_RETURN_BOOL ( spoly_eq ( p1, p2, FALSE ) );
   }
 
   Datum  spherepoly_equal_neg(PG_FUNCTION_ARGS)
   {
-    SPOLY  * p1 = ( SPOLY * ) PG_GETARG_POINTER ( 0 ) ;
-    SPOLY  * p2 = ( SPOLY * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY  * p1 = PG_GETARG_SPOLY( 0 ) ;
+    SPOLY  * p2 = PG_GETARG_SPOLY( 1 ) ;
     PG_RETURN_BOOL ( !spoly_eq ( p1, p2, FALSE ) );
   }
 
   Datum  spherepoly_circ(PG_FUNCTION_ARGS)
   {
-    SPOLY * poly = ( SPOLY * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY * poly = PG_GETARG_SPOLY( 0 ) ;
     int32 i;
     SLine l;
     float8   sum = 0.0;
@@ -721,7 +725,7 @@
 
   Datum  spherepoly_npts(PG_FUNCTION_ARGS)
   {
-    SPOLY * poly = ( SPOLY * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY * poly = PG_GETARG_SPOLY( 0 ) ;
     PG_RETURN_INT32 ( poly->npts );
   }
 
@@ -729,7 +733,7 @@
 
   Datum  spherepoly_area(PG_FUNCTION_ARGS)
   {
-    SPOLY * poly = ( SPOLY * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY * poly = PG_GETARG_SPOLY( 0 ) ;
     int32 i;
     SPoint   s[poly->npts + 2];
     SPoint   stmp[2];
@@ -770,28 +774,28 @@
 
   Datum spherepoly_cont_point (PG_FUNCTION_ARGS)
   {
-    SPOLY  * poly = ( SPOLY  * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY  * poly = PG_GETARG_SPOLY( 0 ) ;
     SPoint * sp   = ( SPoint * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( spoly_contains_point ( poly , sp ) );
   }
 
   Datum spherepoly_cont_point_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY  * poly = ( SPOLY  * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY  * poly = PG_GETARG_SPOLY( 0 ) ;
     SPoint * sp   = ( SPoint * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( !spoly_contains_point ( poly , sp ) );
   }
 
   Datum spherepoly_cont_point_com (PG_FUNCTION_ARGS)
   {
-    SPOLY  * poly = ( SPOLY  * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY  * poly = PG_GETARG_SPOLY( 1 ) ;
     SPoint * sp   = ( SPoint * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( spoly_contains_point ( poly , sp ) );
   }
 
   Datum spherepoly_cont_point_com_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY  * poly = ( SPOLY  * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY  * poly = PG_GETARG_SPOLY( 1 ) ;
     SPoint * sp   = ( SPoint * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( !spoly_contains_point ( poly , sp ) );
   }
@@ -799,139 +803,139 @@
   Datum spherepoly_cont_circle (PG_FUNCTION_ARGS)
   {
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) == PGS_POLY_CONT_CIRCLE );
   }
 
   Datum spherepoly_cont_circle_neg (PG_FUNCTION_ARGS)
   {
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) != PGS_POLY_CONT_CIRCLE );
   }
 
   Datum spherepoly_cont_circle_com (PG_FUNCTION_ARGS)
   {
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 0 ) ;
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) == PGS_POLY_CONT_CIRCLE );
   }
 
   Datum spherepoly_cont_circle_com_neg (PG_FUNCTION_ARGS)
   {
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 0 ) ;
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) != PGS_POLY_CONT_CIRCLE );
   }
 
   Datum spherecircle_cont_poly (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) == PGS_CIRCLE_CONT_POLY );
   }
 
   Datum spherecircle_cont_poly_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) != PGS_CIRCLE_CONT_POLY );
   }
 
   Datum spherecircle_cont_poly_com (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) == PGS_CIRCLE_CONT_POLY );
   }
 
   Datum spherecircle_cont_poly_com_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) != PGS_CIRCLE_CONT_POLY );
   }
 
   Datum spherepoly_overlap_circle (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) > PGS_CIRCLE_POLY_AVOID );
   }
 
   Datum spherepoly_overlap_circle_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) == PGS_CIRCLE_POLY_AVOID );
   }
 
   Datum spherepoly_overlap_circle_com (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) > PGS_CIRCLE_POLY_AVOID );
   }
 
   Datum spherepoly_overlap_circle_com_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
     SCIRCLE * circ = ( SCIRCLE  * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_circle_pos ( poly, circ ) == PGS_CIRCLE_POLY_AVOID );
   }
 
   Datum spherepoly_cont_line (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY  * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
     SLine   * line = ( SLine  * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_line_pos ( poly, line ) == PGS_POLY_CONT_LINE );
   }
 
   Datum spherepoly_cont_line_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY  * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
     SLine   * line = ( SLine  * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_line_pos ( poly, line ) != PGS_POLY_CONT_LINE );
   }
 
   Datum spherepoly_cont_line_com (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY  * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
     SLine   * line = ( SLine  * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_line_pos ( poly, line ) == PGS_POLY_CONT_LINE );
   }
 
   Datum spherepoly_cont_line_com_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY  * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
     SLine   * line = ( SLine  * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_line_pos ( poly, line ) != PGS_POLY_CONT_LINE );
   }
 
   Datum spherepoly_overlap_line (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
     SLine   * line = ( SLine * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_line_pos ( poly, line ) > PGS_LINE_POLY_AVOID );
   }
 
   Datum spherepoly_overlap_line_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 0 ) ;
     SLine   * line = ( SLine * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_line_pos ( poly, line ) == PGS_LINE_POLY_AVOID );
   }
 
   Datum spherepoly_overlap_line_com (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
     SLine   * line = ( SLine * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_line_pos ( poly, line ) > PGS_LINE_POLY_AVOID );
   }
 
   Datum spherepoly_overlap_line_com_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly = ( SPOLY * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly = PG_GETARG_SPOLY( 1 ) ;
     SLine   * line = ( SLine * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_line_pos ( poly, line ) == PGS_LINE_POLY_AVOID );
   }
@@ -939,135 +943,135 @@
 
   Datum spherepoly_cont_poly (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly1 = ( SPOLY  * ) PG_GETARG_POINTER ( 0 ) ;
-    SPOLY   * poly2 = ( SPOLY  * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly1 = PG_GETARG_SPOLY( 0 ) ;
+    SPOLY   * poly2 = PG_GETARG_SPOLY( 1 ) ;
     PG_RETURN_BOOL ( poly_poly_pos ( poly1, poly2, FALSE ) ==  PGS_POLY_CONT );
   }
 
   Datum spherepoly_cont_poly_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly1 = ( SPOLY  * ) PG_GETARG_POINTER ( 0 ) ;
-    SPOLY   * poly2 = ( SPOLY  * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly1 = PG_GETARG_SPOLY( 0 ) ;
+    SPOLY   * poly2 = PG_GETARG_SPOLY( 1 ) ;
     PG_RETURN_BOOL ( poly_poly_pos ( poly1, poly2, FALSE ) !=  PGS_POLY_CONT );
   }
 
   Datum spherepoly_cont_poly_com (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly1 = ( SPOLY  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPOLY   * poly2 = ( SPOLY  * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly1 = PG_GETARG_SPOLY( 1 ) ;
+    SPOLY   * poly2 = PG_GETARG_SPOLY( 0 ) ;
     PG_RETURN_BOOL ( poly_poly_pos ( poly1, poly2, FALSE ) ==  PGS_POLY_CONT );
   }
 
   Datum spherepoly_cont_poly_com_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly1 = ( SPOLY  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPOLY   * poly2 = ( SPOLY  * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly1 = PG_GETARG_SPOLY( 1 ) ;
+    SPOLY   * poly2 = PG_GETARG_SPOLY( 0 ) ;
     PG_RETURN_BOOL ( poly_poly_pos ( poly1, poly2, FALSE ) !=  PGS_POLY_CONT );
   }
 
   Datum spherepoly_overlap_poly (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly1 = ( SPOLY * ) PG_GETARG_POINTER ( 0 ) ;
-    SPOLY   * poly2 = ( SPOLY * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly1 = PG_GETARG_SPOLY( 0 ) ;
+    SPOLY   * poly2 = PG_GETARG_SPOLY( 1 ) ;
     PG_RETURN_BOOL ( poly_poly_pos ( poly1, poly2, FALSE ) > PGS_POLY_AVOID );
   }
 
   Datum spherepoly_overlap_poly_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly1 = ( SPOLY * ) PG_GETARG_POINTER ( 0 ) ;
-    SPOLY   * poly2 = ( SPOLY * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly1 = PG_GETARG_SPOLY( 0 ) ;
+    SPOLY   * poly2 = PG_GETARG_SPOLY( 1 ) ;
     PG_RETURN_BOOL ( poly_poly_pos ( poly1, poly2, FALSE ) == PGS_POLY_AVOID );
   }
   
   Datum spherepoly_cont_ellipse (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell  = ( SELLIPSE * ) PG_GETARG_POINTER ( 1 ) ;
-    SPOLY    * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY    * poly = PG_GETARG_SPOLY( 0 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) == PGS_POLY_CONT_ELLIPSE );
   }
 
   Datum spherepoly_cont_ellipse_neg (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell  = ( SELLIPSE * ) PG_GETARG_POINTER ( 1 ) ;
-    SPOLY    * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY    * poly = PG_GETARG_SPOLY( 0 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) != PGS_POLY_CONT_ELLIPSE );
   }
 
   Datum spherepoly_cont_ellipse_com (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell  = ( SELLIPSE * ) PG_GETARG_POINTER ( 0 ) ;
-    SPOLY    * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY    * poly = PG_GETARG_SPOLY( 1 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) == PGS_POLY_CONT_ELLIPSE );
   }
 
   Datum spherepoly_cont_ellipse_com_neg (PG_FUNCTION_ARGS)
   {
     SELLIPSE * ell  = ( SELLIPSE * ) PG_GETARG_POINTER ( 0 ) ;
-    SPOLY    * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY    * poly = PG_GETARG_SPOLY( 1 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) != PGS_POLY_CONT_ELLIPSE );
   }
 
   Datum sphereellipse_cont_poly (PG_FUNCTION_ARGS)
   {
-    SPOLY    * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY    * poly = PG_GETARG_SPOLY( 1 ) ;
     SELLIPSE *  ell = ( SELLIPSE * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) == PGS_ELLIPSE_CONT_POLY );
   }
 
   Datum sphereellipse_cont_poly_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY    * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY    * poly = PG_GETARG_SPOLY( 1 ) ;
     SELLIPSE *  ell = ( SELLIPSE * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) != PGS_ELLIPSE_CONT_POLY );
   }
 
   Datum sphereellipse_cont_poly_com (PG_FUNCTION_ARGS)
   {
-    SPOLY    * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY    * poly = PG_GETARG_SPOLY( 0 ) ;
     SELLIPSE *  ell = ( SELLIPSE * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) == PGS_ELLIPSE_CONT_POLY );
   }
 
   Datum sphereellipse_cont_poly_com_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY    * poly = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY    * poly = PG_GETARG_SPOLY( 0 ) ;
     SELLIPSE *  ell = ( SELLIPSE * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) != PGS_ELLIPSE_CONT_POLY );
   }
 
   Datum spherepoly_overlap_ellipse (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly  = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly  = PG_GETARG_SPOLY( 0 ) ;
     SELLIPSE  * ell = ( SELLIPSE * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) > PGS_ELLIPSE_POLY_AVOID );
   }
 
   Datum spherepoly_overlap_ellipse_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly  = ( SPOLY    * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * poly  = PG_GETARG_SPOLY( 0 ) ;
     SELLIPSE  * ell = ( SELLIPSE * ) PG_GETARG_POINTER ( 1 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) == PGS_ELLIPSE_POLY_AVOID );
   }
 
   Datum spherepoly_overlap_ellipse_com (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly  = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly  = PG_GETARG_SPOLY( 1 ) ;
     SELLIPSE  * ell = ( SELLIPSE * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) > PGS_ELLIPSE_POLY_AVOID );
   }
 
   Datum spherepoly_overlap_ellipse_com_neg (PG_FUNCTION_ARGS)
   {
-    SPOLY   * poly  = ( SPOLY    * ) PG_GETARG_POINTER ( 1 ) ;
+    SPOLY   * poly  = PG_GETARG_SPOLY( 1 ) ;
     SELLIPSE  * ell = ( SELLIPSE * ) PG_GETARG_POINTER ( 0 ) ;
     PG_RETURN_BOOL ( poly_ellipse_pos ( poly, ell ) == PGS_ELLIPSE_POLY_AVOID );
   }
 
   Datum  spheretrans_poly(PG_FUNCTION_ARGS)
   {
-    SPOLY   * sp  =  ( SPOLY   * ) PG_GETARG_POINTER ( 0 ) ;
+    SPOLY   * sp  =  PG_GETARG_SPOLY ( 0 ) ;
     SEuler  * se  =  ( SEuler  * ) PG_GETARG_POINTER ( 1 ) ;
-    SPOLY   * out =  ( SPOLY   * ) MALLOC ( sp->size );
+    SPOLY   * out =  ( SPOLY   * ) MALLOC ( VARSIZE(sp) );
     PG_RETURN_POINTER ( euler_spoly_trans ( out , sp, se ) );
   }
 
@@ -1089,17 +1093,26 @@
   {
     SPOLY   * poly  =  ( SPOLY   * ) PG_GETARG_POINTER ( 0 ) ;
     SPoint  * p     =  ( SPoint  * ) PG_GETARG_POINTER ( 1 ) ;
+    int32     size  = 0 ;
+    SPOLY * poly_new = NULL;
+
     if ( p == NULL ){
       PG_RETURN_POINTER ( poly );
     }
     if ( poly == NULL ){
-      int32 size = offsetof(SPOLY, p[0]) + sizeof(poly->p[0]) ;
+      size = offsetof(SPOLY, p[0]) + sizeof(SPoint) ;
       poly = ( SPOLY * ) MALLOC ( size );
       memcpy( (void*) &poly->p[0] , (void*) p, sizeof(SPoint) );
+#if PG_VERSION_NUM < 80300
       poly->size = size;
+#else
+      SET_VARSIZE(poly, size);
+#endif
       poly->npts = 1;
       PG_RETURN_POINTER ( poly );
     }
+
+    poly = PG_GETARG_SPOLY( 0 );
 
     // skip if equal
     if ( spoint_eq (p, &poly->p[ poly->npts - 1 ]) ){
@@ -1112,14 +1125,19 @@
       elog ( NOTICE , "spoly(spoint): Skip point, distance of previous point is 180deg" );
     }
 
-    poly->npts++;
-    poly->size = offsetof(SPOLY, p[0]) + sizeof(poly->p[0]) * poly->npts ;
-    if ( ! repalloc( (void *) poly, poly->size ) ){
-      elog ( ERROR, "Error while adding spherical point");
-      PG_RETURN_NULL ( );
-    }
-    memcpy( (void*) &poly->p[poly->npts - 1] , (void*) p, sizeof(SPoint) );
-    PG_RETURN_POINTER ( poly );
+    size = offsetof(SPOLY, p[0]) + sizeof(SPoint) * ( poly->npts + 1 );
+    poly_new = palloc( size );
+    memcpy( (void*) poly , (void*) poly_new, VARSIZE(poly) );
+    poly_new->npts++;
+
+#if PG_VERSION_NUM < 80300
+    poly_new->size = size ;
+#else
+    SET_VARSIZE( poly_new, size );
+#endif
+
+    memcpy( (void*) &poly_new->p[poly->npts] , (void*) p, sizeof(SPoint) );
+    PG_RETURN_POINTER ( poly_new );
   }        
 
 
@@ -1129,6 +1147,9 @@
     if ( poly == NULL ){
       PG_RETURN_NULL ( );
     }
+
+    poly = PG_GETARG_SPOLY( 0 );
+
     if ( poly->npts < 3 ){
       elog ( NOTICE , "spoly(spoint): At least 3 points required" );
       FREE ( poly );

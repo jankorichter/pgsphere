@@ -219,8 +219,8 @@
   }
 
   Datum  spherepath_cmp(PG_FUNCTION_ARGS) {
-    SPATH  * p1 =  ( SPATH * )  PG_GETARG_POINTER ( 0 ) ;
-    SPATH  * p2 =  ( SPATH * )  PG_GETARG_POINTER ( 1 ) ;
+    SPATH  * p1 =  PG_GETARG_SPATH( 0 ) ;
+    SPATH  * p2 =  PG_GETARG_SPATH( 1 ) ;
     if ( spath_eq ( p1,p2 ) ){
       PG_RETURN_INT32 ( 0 );
     } else { 
@@ -233,8 +233,8 @@
   }
 
   Datum  spherepoly_cmp(PG_FUNCTION_ARGS) {
-    SPOLY  * p1 =  ( SPOLY * )  PG_GETARG_POINTER ( 0 ) ;
-    SPOLY  * p2 =  ( SPOLY * )  PG_GETARG_POINTER ( 1 ) ;
+    SPOLY  * p1 =  PG_GETARG_SPOLY( 0 ) ;
+    SPOLY  * p2 =  PG_GETARG_SPOLY( 1 ) ;
     if ( spoly_eq ( p1,p2, FALSE ) ){
       PG_RETURN_INT32 ( 0 );
     } else { 

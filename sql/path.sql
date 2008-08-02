@@ -90,3 +90,11 @@ SELECT :path3 && sline ( spoint '(-1,0)', spoint '(1,0)' );
 SELECT :path3 && sline ( spoint '(-1,0)', spoint '(-0.3,0)' );
 SELECT spath '{(0.11,0.15),(0.12,0.15),(0.13,0.15)}' @ :poly; 
 
+-- create path
+SELECT spath(data.p) FROM ( SELECT spoint '(0,1)' as p UNION ALL SELECT spoint '(1,1)' UNION ALL SELECT '(1,0)' ) AS data ;
+
+SELECT set_sphere_output( 'DEG' );
+
+-- test stored data
+SELECT spoint(p,2) FROM spheretmp6 WHERE id=2;
+

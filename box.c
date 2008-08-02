@@ -1086,111 +1086,111 @@
   Datum spherebox_cont_path(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(0);
-    SPATH    * p  = ( SPATH   * )   PG_GETARG_POINTER(1);
+    SPATH    * p  = PG_GETARG_SPATH(1);
     PG_RETURN_BOOL( sbox_path_pos ( p , b ) == PGS_BOX_CONT_PATH );
   }
 
   Datum spherebox_cont_path_neg(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(0);
-    SPATH    * p  = ( SPATH   * )   PG_GETARG_POINTER(1);
+    SPATH    * p  = PG_GETARG_SPATH(1);
     PG_RETURN_BOOL( !( sbox_path_pos ( p , b ) == PGS_BOX_CONT_PATH ) );
   }
 
   Datum spherebox_cont_path_com(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(1);
-    SPATH    * p  = ( SPATH   * )   PG_GETARG_POINTER(0);
+    SPATH    * p  = PG_GETARG_SPATH(0);
     PG_RETURN_BOOL( sbox_path_pos ( p , b ) == PGS_BOX_CONT_PATH );
   }
 
   Datum spherebox_cont_path_com_neg(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(1);
-    SPATH    * p  = ( SPATH   * )   PG_GETARG_POINTER(0);
+    SPATH    * p  = PG_GETARG_SPATH(0);
     PG_RETURN_BOOL( !( sbox_path_pos ( p , b ) == PGS_BOX_CONT_PATH ) );
   }
 
   Datum spherebox_overlap_path(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(0);
-    SPATH    * p  = ( SPATH   * )   PG_GETARG_POINTER(1);
+    SPATH    * p  = PG_GETARG_SPATH(1);
     PG_RETURN_BOOL( sbox_path_pos ( p , b ) > PGS_BOX_PATH_AVOID );
   }
 
   Datum spherebox_overlap_path_neg(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(0);
-    SPATH    * p  = ( SPATH   * )   PG_GETARG_POINTER(1);
+    SPATH    * p  = PG_GETARG_SPATH(1);
     PG_RETURN_BOOL( !( sbox_path_pos ( p , b ) > PGS_BOX_PATH_AVOID ) );
   }
 
   Datum spherebox_overlap_path_com(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(1);
-    SPATH    * p  = ( SPATH   * )   PG_GETARG_POINTER(0);
+    SPATH    * p  = PG_GETARG_SPATH(0);
     PG_RETURN_BOOL( sbox_path_pos ( p , b ) > PGS_BOX_PATH_AVOID );
   }
 
   Datum spherebox_overlap_path_com_neg(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(1);
-    SPATH    * p  = ( SPATH   * )   PG_GETARG_POINTER(0);
+    SPATH    * p  = PG_GETARG_SPATH(0);
     PG_RETURN_BOOL( !( sbox_path_pos ( p , b ) > PGS_BOX_PATH_AVOID ) );
   }
 
   Datum spherebox_cont_poly(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(0);
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(1);
+    SPOLY    * p  = PG_GETARG_SPOLY(1);
     PG_RETURN_BOOL( sbox_poly_pos ( p , b ) == PGS_BOX_CONT_POLY );
   }
 
   Datum spherebox_cont_poly_neg (PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(0);
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(1);
+    SPOLY    * p  = PG_GETARG_SPOLY(1);
     PG_RETURN_BOOL( ! ( sbox_poly_pos ( p , b ) == PGS_BOX_CONT_POLY ) );
   }
 
   Datum spherebox_cont_poly_com(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(1);
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(0);
+    SPOLY    * p  = PG_GETARG_SPOLY(0);
     PG_RETURN_BOOL( sbox_poly_pos ( p , b ) == PGS_BOX_CONT_POLY );
   }
 
   Datum spherebox_cont_poly_com_neg (PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(1);
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(0);
+    SPOLY    * p  = PG_GETARG_SPOLY(0);
     PG_RETURN_BOOL( ! ( sbox_poly_pos ( p , b ) == PGS_BOX_CONT_POLY ) );
   }
 
   Datum spherepoly_cont_box(PG_FUNCTION_ARGS)
   {
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(0);
+    SPOLY    * p  = PG_GETARG_SPOLY(0);
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(1);
     PG_RETURN_BOOL( sbox_poly_pos ( p , b ) == PGS_POLY_CONT_BOX );
   }
 
   Datum spherepoly_cont_box_neg(PG_FUNCTION_ARGS)
   {
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(0);
+    SPOLY    * p  = PG_GETARG_SPOLY(0);
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(1);
     PG_RETURN_BOOL( ! ( sbox_poly_pos ( p , b ) == PGS_POLY_CONT_BOX ) );
   }
 
   Datum spherepoly_cont_box_com(PG_FUNCTION_ARGS)
   {
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(1);
+    SPOLY    * p  = PG_GETARG_SPOLY(1);
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(0);
     PG_RETURN_BOOL( sbox_poly_pos ( p , b ) == PGS_POLY_CONT_BOX );
   }
 
   Datum spherepoly_cont_box_com_neg(PG_FUNCTION_ARGS)
   {
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(1);
+    SPOLY    * p  = PG_GETARG_SPOLY(1);
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(0);
     PG_RETURN_BOOL( ! ( sbox_poly_pos ( p , b ) == PGS_POLY_CONT_BOX ) );
   }
@@ -1198,28 +1198,28 @@
   Datum spherebox_overlap_poly(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(0);
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(1);
+    SPOLY    * p  = PG_GETARG_SPOLY(1);
     PG_RETURN_BOOL( sbox_poly_pos ( p , b ) > PGS_BOX_POLY_AVOID );
   }
 
   Datum spherebox_overlap_poly_neg(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(0);
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(1);
+    SPOLY    * p  = PG_GETARG_SPOLY(1);
     PG_RETURN_BOOL( ! ( sbox_poly_pos ( p , b ) > PGS_BOX_POLY_AVOID ) );
   }
 
   Datum spherebox_overlap_poly_com(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(1);
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(0);
+    SPOLY    * p  = PG_GETARG_SPOLY(0);
     PG_RETURN_BOOL( sbox_poly_pos ( p , b ) > PGS_BOX_POLY_AVOID );
   }
 
   Datum spherebox_overlap_poly_com_neg(PG_FUNCTION_ARGS)
   {
     SBOX     * b  = ( SBOX    * )   PG_GETARG_POINTER(1);
-    SPOLY    * p  = ( SPOLY   * )   PG_GETARG_POINTER(0);
+    SPOLY    * p  = PG_GETARG_SPOLY(0);
     PG_RETURN_BOOL( ! ( sbox_poly_pos ( p , b ) > PGS_BOX_POLY_AVOID ) );
   }
 
