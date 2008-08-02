@@ -21,17 +21,7 @@ LONG REGRESSION TEST:
 
    gmake crushtest
 
-EXAMPLE USAGE:
-
-   create table test (a spherepoint);
-   -- create index
-   create index testidx on test using gist (a);
-   -- query
-   set enable_seqscan=off;
-   select * from test where a @ '<(0,1),0.1>';
-
-
-For more informations have a look at www.pgastro.org
+For more informations have a look at http://pgsphere.projects.postgresql.org/
 
 Have a lot of fun! 
 
