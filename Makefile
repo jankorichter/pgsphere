@@ -17,14 +17,16 @@ PGS_SQL    =  pgs_types.sql pgs_point.sql pgs_euler.sql pgs_circle.sql \
    pgs_box.sql pgs_gist.sql pgs_btree.sql
 
 ifdef USE_PGXS
-PG_CONFIG = pg_config
-PGXS := $(shell $(PG_CONFIG) --pgxs)
-include $(PGXS)
+  ifndef PG_CONFIG
+    PG_CONFIG := pg_config
+  endif
+  PGXS := $(shell $(PG_CONFIG) --pgxs)
+  include $(PGXS)
 else
-subdir = contrib/pg_sphere
-top_builddir = ../..
-include $(top_builddir)/src/Makefile.global
-include $(top_srcdir)/contrib/contrib-global.mk
+  subdir = contrib/pg_sphere
+  top_builddir = ../..
+  include $(top_builddir)/src/Makefile.global
+  include $(top_srcdir)/contrib/contrib-global.mk
 endif
 
 crushtest: REGRESS += $(CRUSH_TESTS)
