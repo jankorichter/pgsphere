@@ -153,7 +153,7 @@ COMMENT ON FUNCTION scircle_overlap_neg(scircle,scircle) IS
 CREATE OPERATOR !&& (
    LEFTARG    = scircle,
    RIGHTARG   = scircle,
-   PROCEDURE  = scircle_overlap,
+   PROCEDURE  = scircle_overlap_neg,
    COMMUTATOR = '!&&',
    NEGATOR    = '&&',
    RESTRICT   = contsel,
