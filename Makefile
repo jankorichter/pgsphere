@@ -29,12 +29,14 @@ else
   include $(top_srcdir)/contrib/contrib-global.mk
 endif
 
+PGVERSION += $(shell $(PG_CONFIG) --version | sed 's,^PostgreSQL[[:space:]]\+\([0-9]\+\.[0-9]\+\.[0-9]\+\),\1,g' | awk '{ split($$1,a,"."); printf( "v%d%02d%02d" ,a[1], a[2], a[3]); }' )
+
 crushtest: REGRESS += $(CRUSH_TESTS)
 crushtest: installcheck
 
 pg_sphere.sql.in : $(addsuffix .in, $(PGS_SQL))
 	echo 'BEGIN;' > $@
-	cat $+ >> $@
+	for i in $+ ; do $(AWK) -v pg_version=$(PGVERSION) -f sql.awk < $$i >> $@ ; done
 	echo 'COMMIT;' >> $@
 
 sscan.o : sparse.c

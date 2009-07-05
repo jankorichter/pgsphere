@@ -323,8 +323,14 @@
       PG_RETURN_BOOL(FALSE);
     } else {
 
+#if PG_VERSION_NUM >= 80400
+      bool           *recheck = (bool *) PG_GETARG_POINTER(4);
+#endif
       int32            *ent   = ( int32 * ) DatumGetPointer( entry->key ) ;
       int i = SCKEY_DISJ ;
+#if PG_VERSION_NUM >= 80400
+      *recheck = true;
+#endif
 
       switch ( strategy ) {
         case  1 : SCK_INTERLEAVE ( SPoint   , spherepoint_gen_key   , 1 ); break;
@@ -368,8 +374,14 @@
       PG_RETURN_BOOL(FALSE);
     } else {
 
+#if PG_VERSION_NUM >= 80400
+      bool           *recheck = (bool *) PG_GETARG_POINTER(4);
+#endif
       int32            *ent   = ( int32 * ) DatumGetPointer( entry->key ) ;
       int i = SCKEY_DISJ ;
+#if PG_VERSION_NUM >= 80400
+      *recheck = true;
+#endif
 
       switch ( strategy ) {
         case  1 : SCK_INTERLEAVE ( SCIRCLE  , spherecircle_gen_key  , 1 ); break;
@@ -422,8 +434,14 @@
       PG_RETURN_BOOL(FALSE);
     } else {
 
+#if PG_VERSION_NUM >= 80400
+      bool           *recheck = (bool *) PG_GETARG_POINTER(4);
+#endif
       int32            *ent   = ( int32 * ) DatumGetPointer( entry->key ) ;
       int i = SCKEY_DISJ ;
+#if PG_VERSION_NUM >= 80400
+      *recheck = true;
+#endif
 
       switch ( strategy ) {
         case  1 : 
@@ -471,8 +489,14 @@
       PG_RETURN_BOOL(FALSE);
     } else {
 
+#if PG_VERSION_NUM >= 80400
+      bool           *recheck = (bool *) PG_GETARG_POINTER(4);
+#endif
       int32            *ent   = ( int32 * ) DatumGetPointer( entry->key ) ;
       int i = SCKEY_DISJ ;
+#if PG_VERSION_NUM >= 80400
+      *recheck = true;
+#endif
 
       switch ( strategy ) {
         case  1 : SCK_INTERLEAVE ( SPATH    , spherepath_gen_key    , 1 ); break;
@@ -518,8 +542,14 @@
       PG_RETURN_BOOL(FALSE);
     } else {
 
+#if PG_VERSION_NUM >= 80400
+      bool           *recheck = (bool *) PG_GETARG_POINTER(4);
+#endif
       int32            *ent   = ( int32 * ) DatumGetPointer( entry->key ) ;
       int i = SCKEY_DISJ ;
+#if PG_VERSION_NUM >= 80400
+      *recheck = true;
+#endif
 
       switch ( strategy ) {
         case  1 : SCK_INTERLEAVE ( SPATH    , spherepath_gen_key    , 1 ); break;
@@ -570,8 +600,14 @@
       PG_RETURN_BOOL(FALSE);
     } else {
 
+#if PG_VERSION_NUM >= 80400
+      bool           *recheck = (bool *) PG_GETARG_POINTER(4);
+#endif
       int32            *ent   = ( int32 * ) DatumGetPointer( entry->key ) ;
       int i = SCKEY_DISJ ;
+#if PG_VERSION_NUM >= 80400
+      *recheck = true;
+#endif
 
       switch ( strategy ) {
         case  1 : SCK_INTERLEAVE ( SELLIPSE , sphereellipse_gen_key , 1 ); break;
@@ -622,8 +658,14 @@
       PG_RETURN_BOOL(FALSE);
     } else {
 
+#if PG_VERSION_NUM >= 80400
+      bool           *recheck = (bool *) PG_GETARG_POINTER(4);
+#endif
       int32            *ent   = ( int32 * ) DatumGetPointer( entry->key ) ;
       int i = SCKEY_DISJ ;
+#if PG_VERSION_NUM >= 80400
+      *recheck = true;
+#endif
 
       switch ( strategy ) {
         case  1 : SCK_INTERLEAVE ( SBOX     , spherebox_gen_key     , 1 ); break;
