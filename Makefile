@@ -2,7 +2,7 @@
 MODULE_big = pg_sphere
 OBJS       = sscan.o sparse.o sbuffer.o vector3d.o point.o \
              euler.o circle.o line.o ellipse.o polygon.o \
-             path.o box.o output.o btree.o gq_cache.o gist.o key.o
+             path.o box.o output.o gq_cache.o gist.o key.o
 
 DATA_built  = pg_sphere.sql
 DOCS        = README.pg_sphere
@@ -14,7 +14,7 @@ CRUSH_TESTS  = init_extended circle_extended
 # order of sql files is important
 PGS_SQL    =  pgs_types.sql pgs_point.sql pgs_euler.sql pgs_circle.sql \
    pgs_line.sql pgs_ellipse.sql pgs_polygon.sql pgs_path.sql \
-   pgs_box.sql pgs_gist.sql pgs_btree.sql
+   pgs_box.sql pgs_gist.sql
 
 ifdef USE_PGXS
   ifndef PG_CONFIG
@@ -25,6 +25,7 @@ ifdef USE_PGXS
 else
   subdir = contrib/pg_sphere
   top_builddir = ../..
+  PG_CONFIG := $(top_builddir)/src/bin/pg_config/pg_config
   include $(top_builddir)/src/Makefile.global
   include $(top_srcdir)/contrib/contrib-global.mk
 endif

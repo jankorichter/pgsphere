@@ -12,6 +12,7 @@
 <!ENTITY capIndices    SYSTEM "indices.sgm">
 <!ENTITY capExamples   SYSTEM "examples.sgm">
 <!ENTITY capFaq        SYSTEM "faq.sgm">
+<!ENTITY capAppendixes SYSTEM "appendixes.sgm">
 
 <!ENTITY graph1001 "img/spoint.jpg">
 <!ENTITY graph1002 "img/scircle.jpg">
@@ -29,7 +30,7 @@
 <article lang="en">
     <articleinfo>
         <title>
-            pgSphere
+            pgSphere 1.1
         </title>
         <author>
             <surname>pgSphere development team</surname>
@@ -65,5 +66,6 @@
     &capIndices;
     &capExamples;
     &capFaq;
+    &capAppendixes;
 
 </article>

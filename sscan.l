@@ -9,6 +9,7 @@ YY_DECL;
 #define yylval sphere_yylval
 
 #undef YY_INPUT
+#define YY_NO_INPUT
 #define YY_INPUT(buf,result,max_size) \
 { \
         result = get_buffer( buf, max_size ); \

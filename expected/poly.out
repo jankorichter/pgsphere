@@ -315,9 +315,13 @@ SELECT spoly '{(10d,0d),(10d,1d),(15d,0d)}';
 -- incorrect input -----
 SELECT spoly '{(10d,0d),(10d,1d)}';
 ERROR:  spherepoly_in: more than two points needed
+LINE 1: SELECT spoly '{(10d,0d),(10d,1d)}';
+                     ^
 --- self-crossing input -----
 SELECT spoly '{(0d,0d),(10d,10d),(0d,10d),(10d,0d)}';
 ERROR:  spherepoly_from_array: a line segment overlaps or polygon too large
+LINE 1: SELECT spoly '{(0d,0d),(10d,10d),(0d,10d),(10d,0d)}';
+                     ^
 --- functions
 SELECT npoints( spoly '{(10d,0d),(10d,1d),(15d,0d)}');
  npoints 

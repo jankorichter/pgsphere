@@ -82,7 +82,10 @@
 <![CDATA[shell> make installcheck]]>
             </programlisting>
             <para>
-                The check status will be displayed.
+                The check status will be displayed. Please note, the check gives different results with 
+		different <application>PostgreSQL</application>-versions. Currently, the check should
+		run without errors with <application>PostgreSQL</application>-version 8.4. Otherwise check
+		the file <filename>regression.diff</filename>.
             </para>
             
         </sect2>

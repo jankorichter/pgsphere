@@ -68,45 +68,4 @@
 
       </sect2>
         
-      <sect2 id="ind.opt">
-        <title>
-          Optimizing
-        </title>
-        <para>
-          There are several ways to speed up the performance of an index.
-          One way is clustering. <application>pgSphere</application>
-          provides a &ldquo;cluster index&rdquo;. It's just a B-tree index
-          to allow sorting of the table data. It's recommended to create such
-          an index before you create the spherical index. You can then drop the
-          &ldquo;cluster index&rdquo;.
-        </para>
-        <example>
-          <title>An optimized spherical index</title>
-          <programlisting>
-<![CDATA[CREATE TABLE test (]]>
-<![CDATA[  pos spoint NOT NULL]]>
-<![CDATA[);]]>
-<![CDATA[CREATE INDEX test_pos_tmp_idx ON test( pos );]]>
-<![CDATA[-- put in data now]]>
-<![CDATA[CLUSTER test_pos_tmp_idx ON test;]]>
-<![CDATA[DROP INDEX test_pos_tmp_idx;]]>
-<![CDATA[CREATE INDEX test_pos_idx USING GIST ON test (pos);]]>
-<![CDATA[VACUUM ANALYZE test;]]>
-<![CDATA[]]>
-          </programlisting>
-        </example>
-        <para>
-          If your table is rareley updated, you don't need to do it
-          again. Otherwise, do clustering from regularly.
-        </para>
-        <note>
-          <para>
-            Clustering needs a lot of disk space and can take
-            a lot of time. It depends on your system's performance and the
-            size of your data.
-          </para>
-        </note>
-
-      </sect2>
-        
     </sect1>

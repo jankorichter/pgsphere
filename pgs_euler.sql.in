@@ -126,8 +126,7 @@ COMMENT ON FUNCTION strans(strans) IS
 
 CREATE OPERATOR + (
    RIGHTARG   = strans,
-   PROCEDURE  = strans,
-   NEGATOR    = -
+   PROCEDURE  = strans
 );
 
 COMMENT ON OPERATOR + ( NONE , strans ) IS
@@ -144,8 +143,7 @@ COMMENT ON FUNCTION strans_invert(strans) IS
 
 CREATE OPERATOR - (
    RIGHTARG   = strans,
-   PROCEDURE  = strans_invert,
-   NEGATOR    = +
+   PROCEDURE  = strans_invert
 );
 
 COMMENT ON OPERATOR - ( NONE , strans ) IS

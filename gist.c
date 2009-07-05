@@ -705,12 +705,9 @@
   }
 
 
-
-
   /* The GiST Penalty method for boxes.
      We have to make panalty as fast as possible ( offen called ! ) 
   */
-
   Datum g_spherekey_penalty(PG_FUNCTION_ARGS)
   {
     GISTENTRY  *origentry = (GISTENTRY *) PG_GETARG_POINTER(0);
@@ -721,11 +718,21 @@
 
     if ( newentry == NULL ){
       PG_RETURN_POINTER( NULL );
+    } else {
+      double osize = spherekey_size( o );
+      memcpy( (void *) &n[0], (void *) DatumGetPointer( newentry->key ), KEYSIZE );
+      spherekey_union_two ( &n[0] ,  o );
+      *result = ( float ) ( spherekey_size( &n[0] ) - osize );
+      if( FPzero( *result ) ){
+    	  if( FPzero( osize ) ){
+    		*result = 0.0;
+    	  } else {
+    	    *result = 1.0 - ( 1.0 / ( 1.0 + osize ) );
+    	  }
+      } else {
+    	  *result += 1.0;
+      }
     }
-    memcpy( (void *) &n[0], (void *) DatumGetPointer( newentry->key ), KEYSIZE );
-
-    spherekey_union_two ( &n[0] ,  o );
-    *result = ( float ) ( spherekey_size( &n[0] ) - spherekey_size( o ) );
 
     PG_RETURN_POINTER(result);
   }
