@@ -31,7 +31,7 @@
             parameters of a new
             coordinate system (plane) relative to an old one,
           </para>
-          <informaltable frame="none" rowsep="0" colsep="0">
+          <informaltable frame="none" rowsep="1" colsep="1">
             <tgroup cols="3">
               <colspec colname="col0"  align="left"/>
               <colspec colname="col1"  align="left" colwidth="4*"/>

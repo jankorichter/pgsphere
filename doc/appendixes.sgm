@@ -9,7 +9,7 @@
         <itemizedlist>
           <listitem>
             <para>
-              Speed up index query time.
+              Speed up index query time. The index scan is much faster than in 1.0.
             </para>
           </listitem>
           <listitem>
@@ -19,7 +19,7 @@
           </listitem>
           <listitem>
             <para>
-              this version is compatible to <application>PostgreSQL</application> 8.4 
+              This version is compatible to <application>PostgreSQL</application> 8.4 
             </para>
           </listitem>
         </itemizedlist>
