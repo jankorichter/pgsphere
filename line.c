@@ -43,31 +43,6 @@
 #endif
 
   /*!
-    \brief returns a point at line at given length position 
-    \param len  length position
-    \param l    pointer to line
-    \param p    pointer to spherical point
-    \return true, if point at line
-  */
-  static bool sline_point_by_length ( SPoint * p , const SLine * l, float8 len )
-  {
-    
-    static SEuler se ;
-    static SPoint sp = { 0.0, 0.0 };
-    if ( 0.0 >  len || len > l->length ) return false; 
-
-    seuler_set_zxz ( &se );
-    se.phi   = l->phi;
-    se.theta = l->theta;
-    se.psi   = l->psi;
-
-    sp.lng   = len  ;
-    euler_spoint_trans( p, &sp, &se );
-    return true;
-  } 
-
-
-  /*!
     \brief Swaps begin and end of a line
     \param out the result pointer to a spherical line
     \param in  the input pointer to a spherical line
@@ -469,15 +444,14 @@
 
   int8 sline_sline_pos ( const SLine * l1, const SLine * l2  )
   {
-    static Vector3D v[3];
-	static SEuler se;
-    static const SLine  * il1 , * il2 ;
-    static SLine  sl1 , sl2 ;
-    static SPoint p[4];
-    static bool   a1, a2, switched ;
-    static float8 i, k, mi, mk;
-    static const float8 step = ( PI-0.1 );
-    static int    res ;
+    const SLine  * il1 , * il2;
+	Vector3D v[2][2], vtmp;
+	SEuler se;
+    SLine sl1, sl2, lseg ;
+    SPoint p[4];
+    bool switched ;
+    const float8 seg_length = ( PI - 0.1 );
+    float8 seg_begin;
 
     if ( sline_eq ( l1, l2 ) ){
       return PGS_LINE_EQUAL;
@@ -506,24 +480,29 @@
     sl1.phi = sl1.theta = sl1.psi = 0.0;
 	p[0].lat = p[0].lng = p[1].lat = 0.0;
     sl1.length = p[1].lng = il1->length;
-
+    v[0][0].x = 1.0;
+    v[0][0].y = 0.0;
+    v[0][0].z = 0.0;
+    v[0][1].x = cos( il1->length );
+    v[0][1].y = sin( il1->length );
+    v[0][1].z = 0.0;
 
     sphereline_to_euler_inv ( &se, il1 );
-    sline_vector_begin ( &v[0], il2 );
-    euler_vector_trans ( &v[1] , &v[0] , &se );
-    sline_vector_end ( &v[0], il2 );
-    euler_vector_trans( &v[2] , &v[0] , &se );
+    sline_vector_begin ( &vtmp, il2 );
+    euler_vector_trans ( &v[1][0] , &vtmp , &se );
+    sline_vector_end ( &vtmp, il2 );
+    euler_vector_trans ( &v[1][1] , &vtmp , &se );
     euler_sline_trans ( &sl2 , il2 , &se );
-    vector3d_spoint(&p[2],&v[1]);
-    vector3d_spoint(&p[3],&v[2]);
+    vector3d_spoint(&p[2],&v[1][0]);
+    vector3d_spoint(&p[3],&v[1][1]);
 
     // Check, sl2 is at equator
 
     if ( FPzero(p[2].lat) && FPzero(p[3].lat) )
     {
 
-      a1 = spoint_at_sline( &p[2], &sl1 );
-      a2 = spoint_at_sline( &p[3], &sl1 );
+      bool a1 = spoint_at_sline( &p[2], &sl1 );
+      bool a2 = spoint_at_sline( &p[3], &sl1 );
 
       if ( a1 && a2 )
       {
@@ -539,96 +518,50 @@
 
     // Now sl2 is not at equator
 
-    res = 0;
-
     // check connected lines
-
-    if ( FPgt( sl2.length, 0.0 ) ){
-      if ( spoint_eq (&p[0],&p[2]) ) res = ( 1 << PGS_LINE_CONNECT );
-      if ( spoint_eq (&p[0],&p[3]) ) res = ( 1 << PGS_LINE_CONNECT );
-      if ( spoint_eq (&p[1],&p[2]) ) res = ( 1 << PGS_LINE_CONNECT );
-      if ( spoint_eq (&p[1],&p[3]) ) res = ( 1 << PGS_LINE_CONNECT );
+    if (
+    	FPgt( il2->length, 0.0 ) && (
+           vector3d_eq (&v[0][0],&v[1][0]) ||
+           vector3d_eq (&v[0][0],&v[1][1]) ||
+           vector3d_eq (&v[0][1],&v[1][0]) ||
+           vector3d_eq (&v[0][1],&v[1][1])
+        )
+      ){
+        return PGS_LINE_CONNECT;
     }
 
-    // split lines in segments less than 180 degrees and check for each of it
-
-    mi = sl1.length / step ;
-    mk = sl2.length / step ;
-    if ( FPzero ( mk ) ){
-      mk = 0.1; // force one loop for sl2
-    }
-
-    sl2.psi    += step ;
-    for ( i=0.0; i<mi; i += 1.0 ){
-
-      sl2.psi    -= step ;
-      if ( ( i+1 ) >= mi ){
-        sline_point_by_length( &p[0], &sl1, 0.0 );
-        sline_point_by_length( &p[1], &sl1, sl1.length - (i*step) );
-      } else
-      if ( i == 0.0 ){
-        sline_point_by_length( &p[0], &sl1, 0.0  );
-        sline_point_by_length( &p[1], &sl1, step );
-      }
-
-      for ( k=0.0; k<mk; k += 1.0 ){
-        sline_point_by_length( &p[2], &sl2, k * step );
-        sline_point_by_length( &p[3], &sl2, 
-          ( ( ( k+1.0 ) > mk )?( sl2.length ):( ( k+1.0 ) * step ) ) );
+    if( FPle(il2->length, seg_length ) ){
         a1  = ( FPge(p[2].lat,0.0) && FPle(p[3].lat,0.0) ); // sl2 crosses equator desc.
-        a2  = ( FPle(p[2].lat,0.0) && FPge(p[3].lat,0.0) ); // sl1 crosses equator asc. 
+        a2  = ( FPle(p[2].lat,0.0) && FPge(p[3].lat,0.0) ); // sl2 crosses equator asc.
 
-        if ( ! ( a1 || a2  ) ) {
-          res |= ( 1 << PGS_LINE_AVOID );
+        if ( a1 || a2  ) {
+            SPoint sp;
 
-        } else {
-
-          static Vector3D v[2][2] ;
-          static bool lbeg, lend ; 
-          static SPoint sp;
-
-          // Now we take the vectors of line's begin and end
-          spoint_vector3d ( &v[0][0], &p[0] );
-          spoint_vector3d ( &v[0][1], &p[1] );
-          spoint_vector3d ( &v[1][0], &p[2] );
-          spoint_vector3d ( &v[1][1], &p[3] );
-
-          if ( v[0][1].x <= 0.0 ){
-            v[0][1].y = 1.0;
-          }
-
-          // check whether sl2's longitudes are in sl1 range ( begin and end )
-          lbeg =   FPle( v[0][1].x, v[1][0].x ) && FPle ( v[1][0].x, 1.0 ) &&
-                   FPle( 0.0, v[1][0].y ) && FPle ( v[1][0].y, v[0][1].y ) ; 
-          lend =   FPle( v[0][1].x, v[1][1].x ) && FPle ( v[1][1].x, 1.0 ) &&
-                   FPle( 0.0, v[1][1].y ) && FPle ( v[1][1].y, v[0][1].y ) ; 
-
-          sphereline_to_euler_inv ( &se, &sl2 );
-          sp.lng = ( ( a1 )?(PI):(0.0) ) - se.phi; // node
-          sp.lat = 0;
-          spoint_check ( &sp );
-          if (  FPge(sp.lng,0.0) && FPle(sp.lng,p[1].lng) ){
-            res |= ( 1 << PGS_LINE_CROSS );
-          } else {
-            res |= ( 1 << PGS_LINE_AVOID );
-          }
+        	sphereline_to_euler_inv ( &se, &sl2 );
+            sp.lng = ( ( a1 )?(PI):(0.0) ) - se.phi; // node
+            sp.lat = 0;
+            spoint_check ( &sp );
+            if (  FPge(sp.lng, 0.0) && FPle(sp.lng, p[1].lng) ){
+            	return PGS_LINE_CROSS;
+            }
         }
-      }
+        return PGS_LINE_AVOID;
     }
 
-    if ( res == ( 1 << PGS_LINE_AVOID ) ){
-      return PGS_LINE_AVOID;
-    }
-    if ( res & ( 1 << PGS_LINE_CONNECT ) ){
-      return PGS_LINE_CONNECT;
-    }
-    if ( res & ( 1 << PGS_LINE_CONT_LINE ) ){
-      return PGS_LINE_CONT_LINE;
-    }
-    if ( res & ( 1 << PGS_LINE_CROSS ) ){
-      return PGS_LINE_CROSS;
-    }
+    /*
+     * We split the smaller line in segments with length less than 180 deg
+     */
+    for ( seg_begin=0.0; seg_begin < il2->length; seg_begin += seg_length ){
 
+    	lseg.length = ( ( seg_begin + seg_length ) > il2->length ) ? ( il2->length - seg_begin ) : seg_length ;
+        lseg.phi = sl2.phi + seg_begin;
+        lseg.theta = sl2.theta ;
+        lseg.psi = sl2.psi ;
+
+        if( sline_sline_pos( &sl1, &lseg ) != PGS_LINE_AVOID ){
+            return PGS_LINE_CROSS;
+    	}
+    }
     return PGS_LINE_AVOID;
 
   }
@@ -695,10 +628,6 @@
     sphereline_to_euler ( &se, sl );
     return ( euler_spoint_trans ( c , &p , &se ) );
   }
-
-
-
-
 
 
   Datum  sphereline_in(PG_FUNCTION_ARGS)
