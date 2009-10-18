@@ -489,7 +489,6 @@
     euler_vector_trans ( &v[1][0] , &vtmp , &se );
     sline_vector_end ( &vtmp, il2 );
     euler_vector_trans ( &v[1][1] , &vtmp , &se );
-    euler_sline_trans ( &sl2 , il2 , &se );
     vector3d_spoint(&p[2],&v[1][0]);
     vector3d_spoint(&p[3],&v[1][1]);
 
@@ -534,6 +533,7 @@
         if ( a1 || a2  ) {
             SPoint sp;
 
+            euler_sline_trans ( &sl2 , il2 , &se );
         	sphereline_to_euler_inv ( &se, &sl2 );
             sp.lng = ( ( a1 )?(PI):(0.0) ) - se.phi; // node
             sp.lat = 0;
@@ -548,6 +548,7 @@
     /*
      * We split the smaller line in segments with length less than 180 deg
      */
+    euler_sline_trans ( &sl2 , il2 , &se );
     for ( seg_begin=0.0; seg_begin < il2->length; seg_begin += seg_length ){
 
     	lseg.length = ( ( seg_begin + seg_length ) > il2->length ) ? ( il2->length - seg_begin ) : seg_length ;
