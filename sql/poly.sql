@@ -575,3 +575,10 @@ SELECT spoly(data.p) FROM ( SELECT spoint '(0,1)' as p UNION ALL SELECT spoint '
 -- test stored data
 SELECT count(id) FROM spheretmp5 WHERE id=2  AND area(p) BETWEEN 5.735555 AND 5.735556 ;
 
+-- check to create this small polygon without errors
+SELECT area( spoly '{
+(3.09472232280407 , 1.47261266025223),
+(3.0947320190777 , 1.47261266025223),
+(3.0947320190777 , 1.47262235652586),
+(3.09472232280407 , 1.47262235652586) }') > 0 ;
+
