@@ -160,7 +160,7 @@
 
   SPoint * sline_begin ( SPoint * p, const SLine  * l )
   {
-    static SPoint  tmp = { 0.0, 0.0 } ;
+    const static SPoint  tmp = { 0.0, 0.0 } ;
     static SEuler   se ;
     sphereline_to_euler ( &se, l );
     euler_spoint_trans ( p, &tmp, &se );
@@ -176,6 +176,39 @@
     euler_spoint_trans ( p, &tmp, &se );
     return p;
   }
+
+  /*!
+    \brief Returns the begin of a line as vector
+    \param v  the pointer to the begin
+    \param l  the input pointer to the line
+    \return a pointer to begin
+  */
+  static Vector3D * sline_vector_begin ( Vector3D * v, const SLine  * l )
+  {
+    const static Vector3D  tmp = { 1.0, 0.0, 0.0 } ;
+    static SEuler   se ;
+    sphereline_to_euler ( &se, l );
+    euler_vector_trans( v, &tmp, &se );
+    return v;
+  }
+
+  /*!
+    \brief Returns the end of a line as vector
+    \param v  the pointer to the end
+    \param l  the input pointer to the line
+    \return a pointer to begin
+  */
+  static Vector3D * sline_vector_end ( Vector3D * v, const SLine  * l )
+  {
+    static Vector3D  tmp = { 0.0, 0.0, 0.0 } ;
+    static SEuler   se ;
+    tmp.x = cos(l->length);
+    tmp.y = sin(l->length);
+    sphereline_to_euler ( &se, l );
+    euler_vector_trans( v, &tmp, &se );
+    return v;
+  }
+
 
 
   void sline_min_max_lat ( const SLine * sl , float8 * minlat, float8 * maxlat )
@@ -436,16 +469,15 @@
 
   int8 sline_sline_pos ( const SLine * l1, const SLine * l2  )
   {
-
-    static SEuler se;
+    static Vector3D v[3];
+	static SEuler se;
+    static const SLine  * il1 , * il2 ;
     static SLine  sl1 , sl2 ;
     static SPoint p[4];
     static bool   a1, a2, switched ;
     static float8 i, k, mi, mk;
     static const float8 step = ( PI-0.1 );
     static int    res ;
-
-    switched = FALSE;
 
     if ( sline_eq ( l1, l2 ) ){
       return PGS_LINE_EQUAL;
@@ -454,31 +486,47 @@
     if ( sline_eq ( &sl1, l2 ) ){
       return PGS_LINE_CONT_LINE;
     }
-    
+
     // transform the larger line into equator ( begin at (0,0) )
 
-    sl1.phi = sl1.theta = sl1.psi = 0.0;
     if ( FPge( l1->length, l2->length ) ){
-      sphereline_to_euler_inv ( &se, l1 );
-      sl1.length = l1->length;
-      euler_sline_trans ( &sl2 , l2 , &se );
+      il1 = l1;
+      il2 = l2;
       switched = FALSE;
-    } else
-    if ( FPge( l2->length, l1->length ) ){
-      sphereline_to_euler_inv ( &se, l2 ) ;
-      sl1.length = l2->length;
-      euler_sline_trans ( &sl2 , l1 , &se );
+    } else {
+      il1 = l2;
+      il2 = l1;
       switched = TRUE;
     }
-    if ( FPzero( sl1.length ) ){ // both are points
+
+    if ( FPzero( il1->length ) ){ // both are points
       return PGS_LINE_AVOID;
     }
 
+    sl1.phi = sl1.theta = sl1.psi = 0.0;
+	p[0].lat = p[0].lng = p[1].lat = 0.0;
+    sl1.length = p[1].lng = il1->length;
 
-    sline_begin ( &p[0], &sl1 );
-    sline_end   ( &p[1], &sl1 );
-    sline_begin ( &p[2], &sl2 );
-    sline_end   ( &p[3], &sl2 );
+
+    sphereline_to_euler_inv ( &se, il1 );
+    sline_vector_begin ( &v[0], il2 );
+    euler_vector_trans ( &v[1] , &v[0] , &se );
+    sline_vector_end ( &v[0], il2 );
+    euler_vector_trans( &v[2] , &v[0] , &se );
+    euler_sline_trans ( &sl2 , il2 , &se );
+
+    /*
+     * Because of a lot of numeric operations, we have
+     * reduce the numeric precision here ...
+     */
+    if( FPzero( v[1].z * 0.1 ) ){
+    	v[1].z = 0.0;
+    }
+    if( FPzero( v[2].z * 0.1 ) ){
+    	v[2].z = 0.0;
+    }
+    vector3d_spoint(&p[2],&v[1]);
+    vector3d_spoint(&p[3],&v[2]);
 
     // Check, sl2 is at equator
 
