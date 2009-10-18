@@ -74,7 +74,7 @@
 #ifdef EPSILON
 #undef EPSILON
 #endif
-#define EPSILON  1.0E-10                   //!< Precision of floating point values
+#define EPSILON  1.0E-09                   //!< Precision of floating point values
 
 #define FREE     pfree                     //!< An alias for pfree
 #define MALLOC   palloc                    //!< An alias for palloc

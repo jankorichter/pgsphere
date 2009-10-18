@@ -514,17 +514,6 @@
     sline_vector_end ( &v[0], il2 );
     euler_vector_trans( &v[2] , &v[0] , &se );
     euler_sline_trans ( &sl2 , il2 , &se );
-
-    /*
-     * Because of a lot of numeric operations, we have
-     * reduce the numeric precision here ...
-     */
-    if( FPzero( v[1].z * 0.1 ) ){
-    	v[1].z = 0.0;
-    }
-    if( FPzero( v[2].z * 0.1 ) ){
-    	v[2].z = 0.0;
-    }
     vector3d_spoint(&p[2],&v[1]);
     vector3d_spoint(&p[3],&v[2]);
 
