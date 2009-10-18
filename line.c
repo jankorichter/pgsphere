@@ -449,7 +449,6 @@
 	SEuler se;
     SLine sl1, sl2, lseg ;
     SPoint p[4];
-    bool switched ;
     const float8 seg_length = ( PI - 0.1 );
     float8 seg_begin;
 
@@ -466,11 +465,9 @@
     if ( FPge( l1->length, l2->length ) ){
       il1 = l1;
       il2 = l2;
-      switched = FALSE;
     } else {
       il1 = l2;
       il2 = l1;
-      switched = TRUE;
     }
 
     if ( FPzero( il1->length ) ){ // both are points
@@ -506,8 +503,8 @@
 
       if ( a1 && a2 )
       {
-        if ( switched ) return PGS_LINE_OVER;
-        else            return PGS_LINE_CONT_LINE;
+        if ( il1 == l2 ) return PGS_LINE_OVER;
+        else             return PGS_LINE_CONT_LINE;
       } else
       if ( a1 || a2 )
       {
@@ -531,8 +528,8 @@
     }
 
     if( FPle(il2->length, seg_length ) ){
-        a1  = ( FPge(p[2].lat,0.0) && FPle(p[3].lat,0.0) ); // sl2 crosses equator desc.
-        a2  = ( FPle(p[2].lat,0.0) && FPge(p[3].lat,0.0) ); // sl2 crosses equator asc.
+        bool a1  = ( FPge(p[2].lat,0.0) && FPle(p[3].lat,0.0) ); // sl2 crosses equator desc.
+        bool a2  = ( FPle(p[2].lat,0.0) && FPge(p[3].lat,0.0) ); // sl2 crosses equator asc.
 
         if ( a1 || a2  ) {
             SPoint sp;
