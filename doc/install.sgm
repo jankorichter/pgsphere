@@ -113,6 +113,13 @@
                 <application>PostgreSQL</application> documentation for more
                 details.
             </para>
+            <para>
+                To get the version of installed pgSphere software, simply 
+                call:
+            </para>
+            <programlisting>
+<![CDATA[pgsql> SELECT pg_sphere_version()]]>
+            </programlisting>
         </sect2>
         
     </sect1>

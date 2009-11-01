@@ -4,6 +4,11 @@
 --
 -- **************************
 
+CREATE FUNCTION pg_sphere_version( )
+   RETURNS CSTRING
+   AS 'MODULE_PATHNAME' , 'pg_sphere_version'
+   LANGUAGE 'c';
+
 CREATE FUNCTION spoint(FLOAT8, FLOAT8)
    RETURNS spoint
    AS 'MODULE_PATHNAME' , 'spherepoint_from_long_lat'

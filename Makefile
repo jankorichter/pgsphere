@@ -5,7 +5,7 @@ OBJS       = sscan.o sparse.o sbuffer.o vector3d.o point.o \
              path.o box.o output.o gq_cache.o gist.o key.o
 
 DATA_built  = pg_sphere.sql
-DOCS        = README.pg_sphere
+DOCS        = README.pg_sphere COPYRIGHT.pg_sphere
 REGRESS     = init tables points euler circle line ellipse poly path box index
 EXTRA_CLEAN = pg_sphere.sql pg_sphere.sql.in $(PGS_SQL) 
 

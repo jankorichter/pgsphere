@@ -75,7 +75,7 @@
   {
 
     double rho     =  sqrt ( (v->x)*(v->x) + (v->y)*(v->y) );
-    if( FPzero(rho) ){
+    if( 0.0 == rho ){
       if( FPzero( v->z ) ) {
         p->lat  = 0.0;
       } else if( v->z > 0 ){

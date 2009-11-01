@@ -36,6 +36,7 @@ static short int sphere_output_precision = -1;
   PG_FUNCTION_INFO_V1 (sphereellipse_out);
   PG_FUNCTION_INFO_V1 (spherebox_out    );
   PG_FUNCTION_INFO_V1 (set_sphere_output_precision);
+  PG_FUNCTION_INFO_V1 (pg_sphere_version);
 
 #endif
 
@@ -109,6 +110,12 @@ static short int sphere_output_precision = -1;
   */
   Datum  spherebox_out             (PG_FUNCTION_ARGS);
 
+  /*!
+   \brief output of version
+   \return cstring
+   \note PostgreSQL function
+  */
+  Datum  pg_sphere_version         (PG_FUNCTION_ARGS);
 
 
   /*!
@@ -572,4 +579,12 @@ static short int sphere_output_precision = -1;
     FREE ( str2 );
     PG_RETURN_CSTRING ( buffer );
 
+  }
+
+
+  Datum pg_sphere_version(PG_FUNCTION_ARGS)
+  {
+    char  * buffer   =  ( char * ) MALLOC (20);
+    sprintf ( buffer, "1.1.1pre2");
+    PG_RETURN_CSTRING ( buffer );
   }
