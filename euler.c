@@ -27,6 +27,27 @@
 #endif
 
 
+  /**
+   * \brief Checks and modifies the Euler transformation
+   * \param e Euler transformation
+   * \return Euler transformation
+   */
+  static SEuler * spheretrans_check( SEuler * e ){
+
+	SPoint     sp[3];
+	sp[0].lat = sp[1].lat = sp[2].lat = 0.0;
+	sp[0].lng = e->phi;
+	sp[1].lng = e->theta;
+	sp[2].lng = e->psi;
+	spoint_check ( &sp[0] );
+	spoint_check ( &sp[1] );
+	spoint_check ( &sp[2] );
+	e->phi       = sp[0].lng ;
+	e->theta     = sp[1].lng ;
+	e->psi       = sp[2].lng ;
+	return e;
+
+  }
 
 
   Datum  spheretrans_in(PG_FUNCTION_ARGS)
@@ -34,7 +55,6 @@
     SEuler   * se   = ( SEuler * ) MALLOC ( sizeof ( SEuler ) ) ;
     char      *  c  = PG_GETARG_CSTRING(0);
     unsigned char etype[3];
-    SPoint     sp[3];
     int            i;
 
     void sphere_yyparse( void );
@@ -42,9 +62,7 @@
     init_buffer ( c );
     sphere_yyparse();
 
-    sp[0].lat = sp[1].lat = sp[2].lat = 0.0;
-
-    if ( get_euler ( &sp[0].lng, &sp[1].lng, &sp[2].lng, etype ) ){
+    if ( get_euler ( &se->phi, &se->theta, &se->psi, etype ) ){
 
       for ( i=0; i<3; i++ ){
         switch ( i ){
@@ -53,13 +71,7 @@
           case 2:  se->psi_a   = etype[i] ; break;
         }
       }
-
-      spoint_check ( &sp[0] );
-      spoint_check ( &sp[1] );
-      spoint_check ( &sp[2] );
-      se->phi       = sp[0].lng ;
-      se->theta     = sp[1].lng ;
-      se->psi       = sp[2].lng ;
+      spheretrans_check(se);
     } else {
       reset_buffer();
       FREE( se );
@@ -74,19 +86,11 @@
   Datum  spheretrans_from_float8 (PG_FUNCTION_ARGS)
   {
     SEuler  * se  = ( SEuler * ) MALLOC ( sizeof ( SEuler ) ) ;
-    static SPoint  sp[3];
-    sp[0].lat = sp[1].lat = sp[2].lat = 0.0;
-    sp[0].lng   =  PG_GETARG_FLOAT8( 0 );
-    sp[1].lng   =  PG_GETARG_FLOAT8( 1 );
-    sp[2].lng   =  PG_GETARG_FLOAT8( 2 );
-    spoint_check ( &sp[0] );
-    spoint_check ( &sp[1] );
-    spoint_check ( &sp[2] );
-    se->phi       = sp[0].lng ;
-    se->theta     = sp[1].lng ;
-    se->psi       = sp[2].lng ;
+    se->phi   =  PG_GETARG_FLOAT8( 0 );
+    se->theta   =  PG_GETARG_FLOAT8( 1 );
+    se->psi   =  PG_GETARG_FLOAT8( 2 );
     seuler_set_zxz( se );
-    PG_RETURN_POINTER( se );
+    PG_RETURN_POINTER( spheretrans_check(se) );
   }
 
 
@@ -139,7 +143,6 @@
 
   bool strans_eq ( const SEuler * e1, const SEuler * e2 )
   {
-
     static SPoint in[2], p[4] ;
 
     in[0].lng  = 0.0;
@@ -153,9 +156,7 @@
     euler_spoint_trans ( &p[3] , &in[1] , e2 );
 
     return ( spoint_eq ( &p[0], &p[2] ) && spoint_eq ( &p[1], &p[3] ) );
-
   }
-
 
 
   Datum  spheretrans_equal(PG_FUNCTION_ARGS)
@@ -170,21 +171,14 @@
   {
     SEuler  * e1 =  ( SEuler * )  PG_GETARG_POINTER ( 0 ) ;
     SEuler  * e2 =  ( SEuler * )  PG_GETARG_POINTER ( 1 ) ;
-    bool b = DatumGetBool(
-      DirectFunctionCall2 (
-        spheretrans_equal,
-        PointerGetDatum ( e1 ),
-        PointerGetDatum ( e2 )
-      ) );
-    PG_RETURN_BOOL ( ! b );
+    PG_RETURN_BOOL ( !strans_eq ( e1, e2 ) );
   }
-
 
 
   Datum  spheretrans_phi(PG_FUNCTION_ARGS)
   {
     SEuler  * se =  ( SEuler * )  PG_GETARG_POINTER ( 0 ) ;
-    PG_RETURN_POINTER ( &se->phi );
+    PG_RETURN_POINTER( &se->phi );
   }
 
 
@@ -236,22 +230,16 @@
 
   SEuler * spheretrans_inv ( SEuler * se )
   {
-
-    SPoint sp[3];
+    float8 lng[3];
     const unsigned char c = se->phi_a ;
-
-    sp[2].lng = - se->phi;
-    sp[1].lng = - se->theta;
-    sp[0].lng = - se->psi;
-    sp[0].lat = sp[1].lat = sp[2].lat = 0;
-    spoint_check(&sp[0]);
-    spoint_check(&sp[1]);
-    spoint_check(&sp[2]);
-    se->phi     = sp[0].lng;
-    se->theta   = sp[1].lng;
-    se->psi     = sp[2].lng;
-    se->phi_a   = se->psi_a ;
-    se->psi_a   = c ;
+    lng[2] = -se->phi;
+    lng[1] = -se->theta;
+    lng[0] = -se->psi;
+    se->phi   = lng[0];
+    se->theta = lng[1];
+    se->psi   = lng[2];
+    se->phi_a = se->psi_a ;
+    se->psi_a = c ;
     return se;
 
   }
@@ -311,7 +299,6 @@
 
   SEuler * seuler_trans_zxz ( SEuler * out , const SEuler * in , const SEuler * se )
   {
-
     static SPoint sp[4] ;
     sp[0].lng = 0.0;
     sp[0].lat = 0.0;
@@ -322,16 +309,12 @@
     euler_spoint_trans ( &sp[0], &sp[2], se );
     euler_spoint_trans ( &sp[1], &sp[3], se );
     spherevector_to_euler ( out , &sp[0], &sp[1] );
-
-
     return out;
   }
 
 
-
   Datum  spheretrans_trans(PG_FUNCTION_ARGS)
   {
-
     SEuler  * se1  =  ( SEuler  * ) PG_GETARG_POINTER ( 0 ) ;
     SEuler  * se2  =  ( SEuler  * ) PG_GETARG_POINTER ( 1 ) ;
     SEuler  * out  =  ( SEuler  * ) MALLOC ( sizeof( SEuler ) );
@@ -342,14 +325,13 @@
 
   Datum  spheretrans_trans_inv(PG_FUNCTION_ARGS)
   {
-
     SEuler  * se1  =  ( SEuler  * ) PG_GETARG_POINTER ( 0 ) ;
     SEuler  * se2  =  ( SEuler  * ) PG_GETARG_POINTER ( 1 ) ;
     SEuler  * out  =  ( SEuler  * ) MALLOC ( sizeof( SEuler ) );
     SEuler    tmp  ;
     spheretrans_inverse ( &tmp , se2 );
     seuler_trans_zxz  ( out , se1, &tmp );
-    PG_RETURN_POINTER ( out );
+    PG_RETURN_POINTER ( spheretrans_check(out) );
   }
 
 
@@ -359,7 +341,6 @@
     spoint_vector3d ( &v , in );
     euler_vector_trans ( &o , &v , se );
     vector3d_spoint ( out , &o );
-    spoint_check ( out );
     return out;
   }
 
@@ -429,7 +410,9 @@
   {
     static bool ret;
     ret = spherevector_to_euler_inv ( se, spb , spe );
-    spheretrans_inv ( se );
+    if( ret ){
+    	spheretrans_inv ( se );
+    }
     return ret;
   }
 

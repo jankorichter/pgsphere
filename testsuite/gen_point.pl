@@ -46,8 +46,5 @@ print "(0, 90d)\n";
 print "\\.\n\n";
 
 print <<ENDIDX ;
-CREATE INDEX sp_tmp_idx ON spoint_data(sp);
-CLUSTER sp_tmp_idx ON spoint_data;
-DROP INDEX sp_tmp_idx;
 CREATE INDEX sp_idx ON spoint_data USING gist (sp);
 ENDIDX

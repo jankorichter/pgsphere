@@ -111,7 +111,7 @@
       path->npts = nelem;
       for ( i=0; i<nelem ; i++ ){
         if ( i>0 ){
-          scheck = spoint_dist ( &arr[i-1]    , &arr[i] );
+          scheck = spoint_dist ( &arr[i-1], &arr[i] );
           if (FPeq(scheck,PI)){
             elog ( ERROR , "spherepath_from_array: a path segment length must be not equal 180 degrees." );
             return NULL;

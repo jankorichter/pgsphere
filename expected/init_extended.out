@@ -4,9 +4,6 @@
 \i results/gen_point_1.sql
 CREATE TABLE spoint_data (sp spoint);
 COPY spoint_data (sp) FROM stdin;
-CREATE INDEX sp_tmp_idx ON spoint_data(sp);
-CLUSTER sp_tmp_idx ON spoint_data;
-DROP INDEX sp_tmp_idx;
 CREATE INDEX sp_idx ON spoint_data USING gist (sp);
 -- and
 \! testsuite/gen_circle.pl 1 0.1 > results/gen_circle_1_0.1.sql

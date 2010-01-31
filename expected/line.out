@@ -70,3 +70,62 @@ SELECT sline ( spoint '(0,   0d)', spoint '(10d, 0d)' )   #
 (1 row)
 
        
+       
+-- check small lines
+SELECT sline ( spoint '(0,   0d)', spoint '(0.000001d, 0d)' )   #
+       sline ( spoint '(0.0000005d,  0.0000005d)', spoint '(0.0000005d, -0.0000005d)' ) ;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT sline ( spoint '(0,   0d)', spoint '(0.000001d, 0d)' )   #
+       sline ( spoint '(0.000001d,  0.0000005d)', spoint '(0.000001d, -0.0000005d)' ) ;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT sline ( spoint '(0,   0d)', spoint '(0.000001d, 0d)' )   #
+       sline ( spoint '(0.0000015d,  0.0000005d)', spoint '(0.0000015d, -0.0000005d)' ) ;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT sline ( spoint '(0,   0d)', spoint '(0.000001d, 0d)' )   #
+       sline ( spoint '(0.000001d,  0d)', spoint '(0.000001d, -0.0000005d)' ) ;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT sline ( spoint '(0,   0d)', spoint '(0.000001d, 0d)' )   #
+       sline ( spoint '(0.0000005d,  -0.0000005d)', spoint '(0.0000005d, 0.0000005d)' ) ;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT sline ( spoint '(0,   0d)', spoint '(0.000001d, 0d)' )   #
+       sline ( spoint '(0.000001d, -0.0000005d)', spoint '(0.000001d, 0.0000005d)' ) ;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT sline ( spoint '(0,   0d)', spoint '(0.000001d, 0d)' )   #
+       sline ( spoint '(0.0000015d, -0.0000005d)', spoint '(0.0000015d, 0.0000005d)' ) ;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT sline ( spoint '(0,   0d)', spoint '(0.000001d, 0d)' )   #
+       sline ( spoint '(0.000001d,  0d)', spoint '(0.000001d, 0.0000005d)' ) ;
+ ?column? 
+----------
+ f
+(1 row)
+
+       

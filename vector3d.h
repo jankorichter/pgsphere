@@ -43,9 +43,15 @@ bool       vector3d_eq        ( const Vector3D * a   , const Vector3D * b  );
   \brief calculate the scalar product of two vectors
   \param v1  pointer to first vector
   \param v2  pointer to second vector
-  \param out pointer to scalar product
-  \return pointer to scalar product
+  \return scalar product
 */
-float8  * vector3d_scalar ( float8 * out , Vector3D * v1 , Vector3D * v2 );
+float8 vector3d_scalar ( Vector3D * v1 , Vector3D * v2 );
+
+/*!
+  \brief calculate the length of a vector
+  \param v pointer to vector
+  \return length
+*/
+float8 vector3d_length ( const Vector3D * v );
 
 #endif

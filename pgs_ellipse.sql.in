@@ -326,7 +326,7 @@ CREATE OPERATOR && (
    RIGHTARG   = sellipse,
    PROCEDURE  = sellipse_overlap_ellipse,
    COMMUTATOR = '&&',
-   COMMUTATOR = '!&&',
+   NEGATOR    = '!&&',
    RESTRICT   = contsel,
    JOIN       = contjoinsel 
 );
@@ -353,7 +353,7 @@ CREATE OPERATOR !&& (
    RIGHTARG   = sellipse,
    PROCEDURE  = sellipse_overlap_ellipse_neg,
    COMMUTATOR = '!&&',
-   COMMUTATOR = '&&',
+   NEGATOR    = '&&',
    RESTRICT   = contsel,
    JOIN       = contjoinsel 
 );

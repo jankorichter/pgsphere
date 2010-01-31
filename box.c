@@ -116,7 +116,6 @@
     if ( FPgt( b->sw.lng, b->ne.lng) ){
       c->lng += PI;
     }
-    spoint_check(c);
     return c ;
   }
 
@@ -136,7 +135,7 @@
     if ( FPgt( ( sc->center.lat - sc->radius ), sb->ne.lat ) ){
       return PGS_BOX_CIRCLE_AVOID;
     } else
-    if ( FPzero(sb->sw.lng) && FPeq(sb->ne.lng,PID) ){
+    if ( FPzero(sb->sw.lng) && FPeq(sb->ne.lng, PID) ){
       // full latitude range
       static const SPoint tmpn = { 0.0,  PIH } ;
       static const SPoint tmps = { 0.0, -PIH } ;
@@ -323,60 +322,44 @@
 
     pw = sline_sline_pos ( &bw , sl  );
     pe = sline_sline_pos ( &be , sl  );
-//elog(NOTICE,"result %d %d",pw,pe);
-    // Check box and east / west boundaries
 
     if ( pw == PGS_LINE_EQUAL     || pe == PGS_LINE_EQUAL )
     {
-//elog(NOTICE,"a");
       return PGS_BOX_CONT_LINE;
     }
     if ( pw == PGS_LINE_CONT_LINE || pe == PGS_LINE_CONT_LINE )
     {
-//elog(NOTICE,"b");
       return PGS_BOX_CONT_LINE;
     }
     if ( pw == PGS_LINE_CROSS     || pe == PGS_LINE_CROSS )
     {
-//elog(NOTICE,"c");
       if ( pw == PGS_LINE_CROSS )
       {
-//elog(NOTICE,"d");
         if ( !spoint_at_sline ( &pbg , &bw  ) && !spoint_at_sline ( &ped , &bw  ) )
         {
-//elog(NOTICE,"e");
           return PGS_BOX_LINE_OVER;
         }
       }
       if ( pe == PGS_LINE_CROSS )
       {
-//elog(NOTICE,"f");
         if ( !spoint_at_sline ( &pbg , &be  ) && !spoint_at_sline ( &ped , &be  ) )
         {
-//elog(NOTICE,"g");
           return PGS_BOX_LINE_OVER;
         }
       }
     }
     if ( pw == PGS_LINE_OVER      || pe == PGS_LINE_OVER )
     {
-//elog(NOTICE,"h");
       return PGS_BOX_LINE_OVER;
     }
-
-//elog(NOTICE,"i");
 
     // check latitude
 
     lcn = sphereline_latitude_points ( sl, sb->ne.lat, &lc[0]  , &lc[1] );
-//elog(NOTICE,"i1 %d %f %f / %f %f",lcn, lc[0].lng * RADIANS , lc[0].lat * RADIANS , lc[1].lng * RADIANS , lc[1].lat * RADIANS );
     if ( lcn < 0 ) lcn = 0;
     lcs = sphereline_latitude_points ( sl, sb->sw.lat, &lc[lcn], &lc[lcn+1] );
-//elog(NOTICE,"i2 %d %f %f / %f %f",lcs, lc[lcn].lng * RADIANS , lc[lcn].lat * RADIANS , lc[lcn+1].lng * RADIANS , lc[lcn+1].lat * RADIANS );
     if ( lcs < 0 ) lcs = 0;
     lcn += lcs;
-
-
 
     pw = sbox_cont_point( sb, &pbg );
     pe = sbox_cont_point( sb, &ped );
@@ -388,26 +371,21 @@
 
        for ( i=0; i<lcn ; i++ )
        {
-//elog(NOTICE,"px %f %f %d %d", lc[i].lng * RADIANS , lc[i].lat * RADIANS, spoint_eq( &pbg, &lc[i] ), spoint_eq( &ped, &lc[i] ) );
           if ( 
               sbox_cont_point ( sb ,&lc[i] ) &&
               ( !spoint_eq( &pbg, &lc[i] ) && !spoint_eq( &ped, &lc[i] ) )
           )
           {
-//elog(NOTICE,"j");
              return PGS_BOX_LINE_OVER;
           }
        }
-//elog(NOTICE,"k");
 
        // check center
        sline_center( &sp, sl );
        if ( sbox_cont_point ( sb ,&sp ) )
        {
-//elog(NOTICE,"k1");
          return PGS_BOX_CONT_LINE;
        } else {
-//elog(NOTICE,"k2");
          return PGS_BOX_LINE_OVER;
        }
 
@@ -419,20 +397,14 @@
 
        for ( i=0; i<lcn ; i++ )
        {
-//elog(NOTICE,"py %f %f %d %d", lc[i].lng * RADIANS , lc[i].lat * RADIANS, spoint_eq( &pbg, &lc[i] ), spoint_eq( &ped, &lc[i] ) );
           if ( sbox_cont_point ( sb ,&lc[i] ) )
           {
-//elog(NOTICE,"l");
              return PGS_BOX_LINE_OVER;
           }
        }
-//elog(NOTICE,"m");
        return PGS_BOX_LINE_AVOID;
     }
-//elog(NOTICE,"n");
     return PGS_BOX_LINE_OVER;
-
-
   }
 
 
@@ -594,7 +566,7 @@
     if ( pi == PGS_CIRCLE_CONT_ELLIPSE || pi == PGS_ELLIPSE_CIRCLE_EQUAL ){
       return PGS_BOX_ELLIPSE_AVOID;
     }
-    if ( FPeq(sco.center.lat,sci.center.lat) ){
+    if ( FPeq(sco.center.lat, sci.center.lat) ){
       if ( po == PGS_ELLIPSE_CIRCLE_AVOID ){
         return PGS_BOX_ELLIPSE_AVOID;
       }
@@ -611,7 +583,7 @@
       if ( po == PGS_CIRCLE_CONT_ELLIPSE || po == PGS_ELLIPSE_CIRCLE_EQUAL ){
         return PGS_BOX_ELLIPSE_AVOID;
       }
-      if ( FPzero(box->sw.lng) && FPeq(box->ne.lng,PID) ){
+      if ( FPzero(box->sw.lng) && FPeq(box->ne.lng, PID) ){
         // full latitude range
         if ( po == PGS_ELLIPSE_CIRCLE_AVOID && pi == PGS_ELLIPSE_CIRCLE_AVOID ){
           return PGS_BOX_CONT_ELLIPSE;
@@ -622,7 +594,7 @@
     }
 
     sellipse_center ( &ec, ell );
-    if ( FPgt(box->sw.lng,0.0) ){
+    if ( FPgt(box->sw.lng, 0.0) ){
       sline_meridian( &bw, box->sw.lng - EPSILON );
     } else {
       sline_meridian( &bw, box->sw.lng );    
@@ -650,7 +622,7 @@
           )
         )
       {
-        if ( FPeq(sco.center.lat,sci.center.lat) ) {
+        if ( FPeq(sco.center.lat, sci.center.lat) ) {
           if (
               ( po == PGS_CIRCLE_CONT_ELLIPSE || po == PGS_ELLIPSE_CIRCLE_EQUAL ) &&
               pi == PGS_ELLIPSE_CIRCLE_AVOID
@@ -726,12 +698,12 @@
       }
     }
 
-    if ( FPzero(b1->sw.lng) && FPeq(b1->ne.lng,PID) ){
+    if ( FPzero(b1->sw.lng) && FPeq(b1->ne.lng, PID) ){
       // full latitude range
-      if ( FPge(b2->sw.lat,b1->sw.lat) && FPle(b2->ne.lat,b1->ne.lat) ){
+      if ( FPge(b2->sw.lat, b1->sw.lat) && FPle(b2->ne.lat, b1->ne.lat) ){
         return PGS_BOX_CONT;
       } else
-      if ( FPgt(b2->sw.lat,b1->ne.lat) || FPlt(b2->ne.lat,b1->sw.lat) ){
+      if ( FPgt(b2->sw.lat, b1->ne.lat) || FPlt(b2->ne.lat, b1->sw.lat) ){
         return PGS_BOX_AVOID;
       }
       return PGS_BOX_OVER;
@@ -777,7 +749,7 @@
   bool sbox_cont_point ( const SBOX * b, const SPoint * p )
   {
 
-    if ( ( FPeq(p->lat,b->ne.lat) && FPeq(p->lat,PIH) ) || ( FPeq(p->lat,b->sw.lat) && FPeq(p->lat,-PIH) ) )
+    if ( ( FPeq(p->lat,b->ne.lat) && FPeq(p->lat, PIH) ) || ( FPeq(p->lat,b->sw.lat) && FPeq(p->lat, -PIH) ) )
     {
       return true;
     }

@@ -104,7 +104,60 @@ SELECT sellipse '<{10d,5d},(280d,-20d),90d>' !~ spoint '(280d, -9d)' ;
  t
 (1 row)
 
-  
+SELECT spoint '(0d, 90d)' @ sellipse '<{10d,5d},(0d,0d),0d>' ;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT spoint '(0d, -90d)' @ sellipse '<{10d,5d},(0d,0d),0d>' ;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT spoint '(0d, 0d)' @ sellipse '<{10d,5d},(0d,0d),0d>' ;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT spoint '(90d, 0d)' @ sellipse '<{10d,5d},(0d,0d),0d>' ;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT spoint '(180d, 0d)' @ sellipse '<{10d,5d},(0d,0d),0d>' ;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT spoint '(270d, 0d)' @ sellipse '<{10d,5d},(0d,0d),0d>' ;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT spoint '(9d, 0d)' @ sellipse '<{10d,5d},(0d,0d),0d>' ;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT spoint '(0d, 9d)' @ sellipse '<{10d,5d},(0d,0d),0d>' ;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT spoint '(0d, 4d)' @ sellipse '<{10d,5d},(0d,0d),0d>' ;
+ ?column? 
+----------
+ t
+(1 row)
+
 --
 --ellipse and circle (@,&&)
 --

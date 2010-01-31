@@ -82,9 +82,7 @@
       e2.psi   = l2->psi;
       return ( strans_eq ( &e1, &e2 ) );
     }
-    
     return FALSE;
-
   }
 
 
@@ -121,13 +119,9 @@
 
   SLine * sline_meridian( SLine * sl, float8 lng )
   {
-    static SPoint p;
     sl->phi    = - PIH;
     sl->theta  =   PIH;
-    p.lat      =   0.0;
-    p.lng      =   lng;
-    spoint_check(&p);
-    sl->psi    = p.lng;
+    sl->psi    = (lng<0.0) ? lng + PID : lng ;
     sl->length = PI;
     return sl;
   } 
@@ -194,10 +188,8 @@
 
     if ( FPzero ( inc ) || FPeq ( inc, PI ) )
     {
-
     	*minlat = *maxlat = 0.0;
     	return;
-
     } else {
 
       SEuler se ;
@@ -231,12 +223,8 @@
           *maxlat = max ( tp.lat, *maxlat );
         }
       }
-    
     }
-
   }
-
-
 
   int4 sphereline_latitude_points ( const SLine * sl, float8 lat, SPoint *p1, SPoint *p2 )
   {
@@ -453,7 +441,7 @@
     float8 seg_begin;
 
     if ( sline_eq ( l1, l2 ) ){
-      return PGS_LINE_EQUAL;
+    	return PGS_LINE_EQUAL;
     }
     sline_swap_beg_end( &sl1, l1 );
     if ( sline_eq ( &sl1, l2 ) ){
@@ -502,8 +490,11 @@
 
       if ( a1 && a2 )
       {
-        if ( il1 == l2 ) return PGS_LINE_OVER;
-        else             return PGS_LINE_CONT_LINE;
+        if ( il1 == l2 ){
+          return PGS_LINE_OVER;
+        } else {
+          return PGS_LINE_CONT_LINE;
+        }
       } else
       if ( a1 || a2 )
       {
@@ -522,7 +513,7 @@
            vector3d_eq (&v[0][1],&v[1][0]) ||
            vector3d_eq (&v[0][1],&v[1][1])
         )
-      ){
+    ){
         return PGS_LINE_CONNECT;
     }
 
@@ -561,7 +552,6 @@
     	}
     }
     return PGS_LINE_AVOID;
-
   }
 
   SEuler * sphereline_to_euler_inv ( SEuler * se, const SLine * sl )

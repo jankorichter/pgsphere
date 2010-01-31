@@ -88,11 +88,14 @@
     }
 
     p->lng   = atan2( v->y, v->x );
-    p        = spoint_check( p );
-    
+    if( FPzero(p->lng) ){
+    	p->lng = 0.0;
+    } else
+    if( p->lng < 0.0 ){
+    	p->lng += PID ;
+    }
     return ( p );
   } 
-
 
   Vector3D * spoint_vector3d ( Vector3D * v , const SPoint * p )
   {
@@ -101,9 +104,6 @@
     v->z      = sin(p->lat);
     return ( v ) ;
   }
-
-
-
 
   Datum  spherepoint_in(PG_FUNCTION_ARGS)
   {
@@ -140,7 +140,18 @@
 
   float8 spoint_dist ( const SPoint * p1, const SPoint * p2 )
   {
-    float8 f = ( acos ( sin( p1->lat )*sin( p2->lat ) + cos( p1->lat )*cos( p2->lat )*cos( p1->lng - p2->lng ) ) );
+	float8 dl = p1->lng - p2->lng;
+    float8 f = (  ( sin( p1->lat )*sin( p2->lat ) + cos( p1->lat )*cos( p2->lat )*cos( dl ) ) );
+    if( FPeq( f, 1.0 ) ){
+   	  /* for small distances */
+      Vector3D v1, v2, v3;
+      spoint_vector3d(&v1, p1);
+      spoint_vector3d(&v2, p2);
+      vector3d_cross( &v3, &v1, &v2 );
+      f = vector3d_length(&v3);
+    } else {
+      f = acos(f);
+    }
     if ( FPzero(f) ){
       return 0.0;
     } else {
@@ -206,8 +217,6 @@
     result = construct_array ( dret , 3, FLOAT8OID, sizeof(float8), false /* float8 byval */ , 'd' );
     PG_RETURN_ARRAYTYPE_P(result);                                                                                                          
   }
-
-
 
   Datum  spherepoint_equal(PG_FUNCTION_ARGS)
   {

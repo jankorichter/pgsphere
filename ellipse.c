@@ -57,7 +57,7 @@
 
 
   /*!
-    This function returns the acr cos aof a value. If variable
+    This function returns the arc cos of a value. If variable
     a is outside the range between -1.00 and 1.00, the function
     returns corresponding PI/2 or 3*PI/2.
     \param a the arccos argument
@@ -126,9 +126,9 @@
     SELLIPSE  * e  = ( SELLIPSE * ) MALLOC ( sizeof ( SELLIPSE ) ) ;
     e->rad[0]      = max(r1,r2);
     e->rad[1]      = min(r1,r2);
-    e->phi         =  inc;
-    e->theta       = -(c->lat);
-    e->psi         =  c->lng;
+    e->phi         = inc;
+    e->theta       = -c->lat;
+    e->psi         = c->lng;
     if ( FPge(e->rad[0],PIH) || FPge(e->rad[1],PIH) ){
       FREE( e );
       e = NULL;
@@ -139,20 +139,18 @@
     return ( e );
   }
 
-
-
   /*!
     \brief Returns the radius of an ellipse depending on position angle
-    \param rada pointer to major axis length
-    \param radb pointer to minor axis length
-    \param ang  pointer to position angle in radians
+    \param rada major axis length
+    \param radb minor axis length
+    \param ang  position angle in radians
     \return radius of ellipse in radians
   */
-  static float8  sellipse_dist ( const float8 * rada, const float8 * radb , const float8 * ang )
+  static float8  sellipse_dist ( float8 rada, float8 radb , float8 ang )
   {
         static float8 e;
-        e = ( 1 - sqr ( sin ( *radb ) ) / sqr ( sin ( *rada ) ) ) ;
-        return ( asin ( sin ( *radb ) / sqrt( 1 - e * sqr( cos(*ang) ) ) ) );
+        e = ( 1 - sqr ( sin ( radb ) ) / sqr ( sin ( rada ) ) ) ;
+        return ( asin ( sin ( radb ) / sqrt( 1 - e * sqr( cos(ang) ) ) ) );
   }
 
 
@@ -178,8 +176,12 @@
     if ( FPzero( dist ) ){
       return -1.0;
     } else {
-      ang  = my_acos( tan(p.lng) / tan(dist) ) ;
-      rad  = sellipse_dist ( &se->rad[0] , &se->rad[1], &ang );
+      if( FPeq( dist, PIH ) ){
+    	  ang = p.lat;
+      } else {
+    	  ang  = my_acos( tan(p.lng) / tan(dist) ) ;
+      }
+      rad  = sellipse_dist ( se->rad[0], se->rad[1], ang );
       if ( FPzero( ( dist-rad ) ) ){
         return 0.0;
       } else
@@ -226,7 +228,6 @@
     out->phi      =   et.theta;
     out->rad[0]   =   in->rad[0];
     out->rad[1]   =   in->rad[1];
-    sellipse_check (out);
     return out;
   }
 
@@ -362,7 +363,7 @@
          etmp.psi      =  PIH;
 
 
-         // binary search for minimum distance
+         // search for minimum distance
 
          sp[0].lat = sp[2].lat = PIH - se1->rad[0] ;
          sellipse_center( &sp[1], &e );
@@ -429,7 +430,7 @@
               memcpy( (void*) &sp[2], (void*) &sp[1], sizeof( SPoint ) );
            }
            sp[1].lng = ( sp[0].lng + sp[2].lng )/ 2.0 ;
-           sp[1].lat = PIH - sellipse_dist ( &etmp.rad[0], &etmp.rad[1] , &sp[1].lng );
+           sp[1].lat = PIH - sellipse_dist ( etmp.rad[0], etmp.rad[1] , sp[1].lng );
            cntr++;
          } while ( cntr < maxcntr && ( ( sp[2].lng - sp[0].lng ) > FLT_EPSILON ) );
          if ( cntr >= maxcntr ){
@@ -465,7 +466,6 @@
   {
     sp->lng =   e->psi;
     sp->lat = - e->theta;
-    spoint_check(sp);
     return sp;
   }
 
@@ -479,7 +479,7 @@
       p[0].lat = p[1].lat = 0.0;
       p[0].lng = - e->rad[0];
       p[1].lng =   e->rad[0];
-      sline_from_points( &slt,&p[0], &p[1] );
+      sline_from_points( &slt, &p[0], &p[1] );
       euler_sline_trans ( sl , &slt , sellipse_trans( &se , e ) );
     } else {
       sl = NULL;
@@ -493,7 +493,7 @@
     if ( FPne ( e1->rad[0], e2->rad[0] ) || FPne ( e1->rad[1], e2->rad[1] ) ){
       return FALSE;
     } else
-    if ( FPzero ( e1->rad[0] ) ){           // point
+    if ( FPzero ( e1->rad[0] ) ){ // point
       static SPoint p[2];
       sellipse_center( &p[0], e1 );
       sellipse_center( &p[1], e2 );
@@ -535,8 +535,12 @@
       sellipse_trans( &et , se );
       spheretrans_inv ( &et );
       euler_spoint_trans (&p ,sp ,&et );
-      e = my_acos( tan(p.lng)/tan(dist) ) ;
-      a = sellipse_dist ( &se->rad[0] , &se->rad[1], &e );
+      if( FPeq(dist, PIH ) ){
+    	e = p.lat;
+      } else {
+    	e = my_acos( tan(p.lng)/tan(dist) ) ;
+      }
+      a = sellipse_dist ( se->rad[0] , se->rad[1], e );
       if ( FPge(a, dist) ) {
         return TRUE;
       } else {
@@ -641,16 +645,16 @@
       euler_sellipse_trans ( &set, se, &e );
       sellipse_center( &c, &set );
 
-      if ( sin ( c.lng + se->rad[0] ) < 0 ){
+      if ( sin ( c.lng + se->rad[0] ) < 0.0 ){
         return PGS_ELLIPSE_LINE_AVOID;
       }
-      if ( sin ( c.lng - se->rad[0] - sl->length ) < 0 ){ 
+      if ( sin ( c.lng - se->rad[0] - sl->length ) < 0.0 ){
         return PGS_ELLIPSE_LINE_AVOID;
       }
-      if ( ( c.lat >= 0 ) && ( se->rad[0] - c.lat ) > 0 ){
+      if ( ( c.lat >= 0 ) && ( se->rad[0] - c.lat ) > 0.0 ){
         return PGS_ELLIPSE_LINE_AVOID;
       }                           
-      if ( ( c.lat <  0 ) && ( se->rad[0] + c.lat ) > 0 ){
+      if ( ( c.lat <  0 ) && ( se->rad[0] + c.lat ) > 0.0 ){
         return PGS_ELLIPSE_LINE_AVOID;
       } else {
 
@@ -672,13 +676,17 @@
         eps       = ( 1 - sqr ( sin ( se->rad[1] ) ) / sqr ( sin ( se->rad[0] ) ) ) ;
         sinr      = sin ( se->rad[1] );
 
-        while ( FPgt(lp[2].lng,lp[0].lng) ){
+        while ( FPgt(lp[2].lng, lp[0].lng) ){
 
           for ( i=0; i<3; i++ ){
             euler_spoint_trans (&lpt[i] ,&lp[i] ,&e );
             dist    = spoint_dist ( &lpt[i] , &cn );
-            d[i]    = tan(lpt[i].lng)/tan(dist) ;
-            d[i]    = asin ( sinr / sqrt( 1 - eps * sqr(d[i]) ) );
+            if( FPeq(dist, PIH) ){
+            	d[i] = lpt[i].lat ;
+            } else {
+            	d[i] = tan(lpt[i].lng)/tan(dist) ;
+            }
+            d[i] = asin ( sinr / sqrt( 1 - eps * sqr(d[i]) ) );
             if ( FPge( d[i], dist ) ){
               return PGS_ELLIPSE_LINE_OVER;
             }
@@ -708,7 +716,6 @@
       }
 
     }
-
     return PGS_ELLIPSE_LINE_AVOID;
   }
 
@@ -788,8 +795,12 @@
         sellipse_trans( &et , se );
         spheretrans_inv ( &et );
         euler_spoint_trans ( &p, &sc->center, &et );
-        e = my_acos ( tan(p.lng)/tan(dist) ) ;
-        a = sellipse_dist ( &se->rad[0], &se->rad[1] , &e ) ;
+        if( FPeq(dist, PIH) ){
+          e = p.lat;
+        } else {
+          e = my_acos ( tan(p.lng)/tan(dist) ) ;
+        }
+        a = sellipse_dist ( se->rad[0], se->rad[1], e ) ;
         if ( FPle( (dist + sc->radius) , a ) ) {
           return PGS_ELLIPSE_CONT_CIRCLE;
         } else 
@@ -801,11 +812,8 @@
         } else {
           return PGS_ELLIPSE_CIRCLE_AVOID;
         }
-
       }
-
     }
-
     return PGS_ELLIPSE_CIRCLE_AVOID ;
   }
 
@@ -824,9 +832,6 @@
     if ( get_ellipse( &p.lng, &p.lat, &r1, &r2, &inc ) ){
       e = sellipse_in( r1, r2, &p , inc );
       reset_buffer();
-      if ( e ) {
-        sellipse_check ( e );
-      }
     }
     PG_RETURN_POINTER( e );
   }
@@ -1158,9 +1163,8 @@
     SEuler   * se   =  ( SEuler    * ) PG_GETARG_POINTER ( 1 ) ;
     SELLIPSE * out  =  ( SELLIPSE  * ) MALLOC ( sizeof( SELLIPSE ) );
     euler_sellipse_trans ( out , e , se );
-    PG_RETURN_POINTER ( out );
+    PG_RETURN_POINTER ( sellipse_check(out) );
   }
-
 
   Datum  spheretrans_ellipse_inv(PG_FUNCTION_ARGS)
   {
@@ -1170,6 +1174,6 @@
     SEuler    tmp  ;
     spheretrans_inverse ( &tmp , se );
     euler_sellipse_trans ( out , e , &tmp );
-    PG_RETURN_POINTER ( out );
+    PG_RETURN_POINTER ( sellipse_check(out) );
   }
 

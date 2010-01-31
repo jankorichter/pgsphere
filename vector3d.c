@@ -25,11 +25,14 @@
   }
 
 
-  float8  * vector3d_scalar ( float8 * out , Vector3D * v1 , Vector3D * v2 ){
-    *out      = 0;
-    *out     += v1->x * v2->x;
-    *out     += v1->y * v2->y;
-    *out     += v1->z * v2->z;
+  float8  vector3d_scalar ( Vector3D * v1 , Vector3D * v2 ){
+	float8 out = 0;
+    out     += v1->x * v2->x;
+    out     += v1->y * v2->y;
+    out     += v1->z * v2->z;
     return ( out );
   }
 
+  float8 vector3d_length ( const Vector3D * v ){
+    return sqrt( sqr(v->x) + sqr(v->y) + sqr(v->z) );
+  }

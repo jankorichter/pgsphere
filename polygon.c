@@ -485,7 +485,7 @@
     // First check, if point is outside polygon (behind)
     spherepoly_center  ( &vc , pg );
     spoint_vector3d    ( &vp , sp );
-    vector3d_scalar ( &scp , &vp , &vc );
+    scp = vector3d_scalar ( &vp , &vc );
     if ( FPle ( scp, 0.0 ) ){
       return false;
     }
@@ -767,6 +767,10 @@
     sum -= ( PI * ( poly->npts - 2 ) ) ;
     if ( FPge(sum,PID) ){
       sum = 2*PID - sum; 
+    }
+
+    if ( FPzero(sum) ){
+      sum = 0.0;
     }
 
     PG_RETURN_FLOAT8 ( sum );

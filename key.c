@@ -9,8 +9,6 @@
   \brief functions to create the key values
 */
 
-
-
   /*!
     \brief unions a key with the key value of a point
   */
@@ -319,7 +317,7 @@
       static int32   i,k,r;
       static SLine       l;
       static int32   tk[6];
-      static bool   start = TRUE;
+      bool   start = TRUE;
 
       for ( i=0; i<sp->npts; i++ ){
         for ( k=i+1; i<sp->npts; i++ ){
@@ -339,6 +337,7 @@
           }
         }
       }
+
       return key;
   }
 
@@ -348,9 +347,7 @@
       static  int32   i,k,r;
       static  SLine       l;
       static  int32   tk[6];
-      static  bool    start;
-      
-      start = TRUE;
+      bool    start = TRUE;
 
       for ( i=0; i<sp->npts; i++ ){
         for ( k=i+1; i<sp->npts; i++ ){

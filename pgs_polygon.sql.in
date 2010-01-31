@@ -234,7 +234,7 @@ CREATE OPERATOR && (
    RIGHTARG   = spoly,
    PROCEDURE  = spoly_overlap_polygon,
    COMMUTATOR = '&&',
-   COMMUTATOR = '!&&',
+   NEGATOR    = '!&&',
    RESTRICT   = contsel,
    JOIN       = contjoinsel 
 );
@@ -261,7 +261,7 @@ CREATE OPERATOR !&& (
    RIGHTARG   = spoly,
    PROCEDURE  = spoly_overlap_polygon,
    COMMUTATOR = '!&&',
-   COMMUTATOR = '&&',
+   NEGATOR    = '&&',
    RESTRICT   = contsel,
    JOIN       = contjoinsel 
 );

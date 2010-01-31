@@ -57,10 +57,8 @@
   {
     euler_spoint_trans ( &out->center , &in->center , se );
     out->radius = in->radius;
-    spoint_check ( &out->center );
     return out;
   }
-
 
   Datum  spherecircle_in(PG_FUNCTION_ARGS)
   {
@@ -118,7 +116,7 @@
     SCIRCLE  * c2 =  ( SCIRCLE * ) PG_GETARG_POINTER ( 1 ) ;
     float8   dist =  spoint_dist ( &c1->center, &c2->center ); 
 
-    dist = dist - ( c1->radius + c2->radius ) ;
+    dist -= ( c1->radius + c2->radius ) ;
     if ( dist < 0.0 ) {
       dist = 0.0;
     }
@@ -329,14 +327,14 @@
 
   Datum  spheretrans_circle_inverse(PG_FUNCTION_ARGS)
   {
-   Datum sc     = PG_GETARG_DATUM ( 0 );
-   SEuler *  se = ( SEuler * ) PG_GETARG_POINTER( 1 );
-   SEuler tmp   ;
-   Datum ret;
+    Datum sc     = PG_GETARG_DATUM ( 0 );
+    SEuler *  se = ( SEuler * ) PG_GETARG_POINTER( 1 );
+    SEuler tmp   ;
+    Datum ret;
 
-   spheretrans_inverse ( &tmp , se );
-   ret =  DirectFunctionCall2(
+    spheretrans_inverse ( &tmp , se );
+    ret =  DirectFunctionCall2(
                        spheretrans_circle ,
                        sc, PointerGetDatum(&tmp) );
-   PG_RETURN_DATUM( ret );
+    PG_RETURN_DATUM( ret );
   }
