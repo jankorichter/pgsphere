@@ -22,7 +22,7 @@
   \brief holds the current output modus.
 */
 static unsigned char sphere_output  =  OUTPUT_RAD  ;
-static short int sphere_output_precision = -1;
+static short int sphere_output_precision = DBL_DIG;
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -154,8 +154,8 @@ static short int sphere_output_precision = -1;
     short int  c  = PG_GETARG_INT16(0);
     char    * buf = ( char * ) MALLOC ( 20 );
 
-    if ( c > DBL_DIG ) c=-1;
-    if ( c < -1 ) c=-1;
+    if ( c > DBL_DIG ) c = DBL_DIG;
+    if ( c < 1 ) c = DBL_DIG;
     sphere_output_precision=c;
 
     sprintf(buf,"SET %d",c);
@@ -191,70 +191,33 @@ static short int sphere_output_precision = -1;
     char * buffer = ( char * ) MALLOC ( 255 ) ;
     unsigned int latdeg , latmin, lngdeg, lngmin;
     double latsec, lngsec;
-    short int sopd=sphere_output_precision;
-    short int sopl=( sopd>0 )? sopd+3 : sopd+2;
     
     latdeg = latmin = lngdeg = lngmin = 0;
     latsec = lngsec = 0.0;
 
     switch ( sphere_output ){
 
-      case OUTPUT_DEG : if(sphere_output_precision==-1) {
-                          sprintf ( buffer , "(%.*gd , %.*gd)", 
-                            DBL_DIG, RADIANS*sp->lng, DBL_DIG, RADIANS*sp->lat );
-                        } else {
-                          sprintf ( buffer , "(%*.*fd , %*.*fd)", 
-                            sopd+8, sopd+4, RADIANS*sp->lng,
-                            sopd+8, sopd+4, RADIANS*sp->lat );
-                        }
+      case OUTPUT_DEG : sprintf ( buffer , "(%.*gd , %.*gd)",
+    		  	  	  	    sphere_output_precision, RADIANS*sp->lng, sphere_output_precision, RADIANS*sp->lat );
                         break;
+
       case OUTPUT_DMS : rad_to_dms ( sp->lng , &lngdeg, &lngmin, &lngsec );
                         rad_to_dms ( sp->lat , &latdeg, &latmin, &latsec );
-                        if(sphere_output_precision==-1) {
-                          sprintf (
-                            buffer ,
-                            "(%3ud %2um %.*gs , %c%2ud %2um %.*gs)",
-                            lngdeg, lngmin, DBL_DIG, lngsec,
-                            ( sp->lat<0 )?('-'):('+'),
-                            latdeg, latmin, DBL_DIG, latsec 
-                          );
-                        } else {
-                          sprintf (
-                            buffer ,
-                            "(%03ud %02um %0*.*fs , %c%02ud %02um %0*.*fs)",
-                            lngdeg, lngmin, sopl, sopd, lngsec,
-                            ( sp->lat<0 )?('-'):('+'),
-                            latdeg, latmin, sopl, sopd, latsec 
-                          );
-                        }
+						sprintf (buffer , "(%3ud %2um %.*gs , %c%2ud %2um %.*gs)",
+							lngdeg, lngmin, sphere_output_precision, lngsec,
+							( sp->lat<0 )?('-'):('+'),
+							latdeg, latmin, sphere_output_precision, latsec);
                         break;
 
       case OUTPUT_HMS : rad_to_dms ( sp->lng / 15 , &lngdeg, &lngmin, &lngsec );
                         rad_to_dms ( sp->lat , &latdeg, &latmin, &latsec );
-                        if(sphere_output_precision==-1) {
-                          sprintf ( 
-                            buffer ,
-                            "(%3uh %2um %.*gs , %c%2ud %2um %.*gs)",
-                            lngdeg, lngmin, DBL_DIG, lngsec,
+                        sprintf ( buffer, "(%3uh %2um %.*gs , %c%2ud %2um %.*gs)",
+                            lngdeg, lngmin, sphere_output_precision, lngsec,
                             ( sp->lat<0 )?('-'):('+'),
-                            latdeg, latmin, DBL_DIG, latsec 
-                          );
-                        } else {
-                          sprintf (
-                            buffer ,
-                            "(%02uh %02um %0*.*fs , %c%02ud %02um %0*.*fs)",
-                            lngdeg, lngmin, (sopd==0)?sopl+2:sopl+1, sopd+1, lngsec,
-                            ( sp->lat<0 )?('-'):('+'),
-                            latdeg, latmin, sopl, sopd, latsec 
-                          );
-                        }
+                            latdeg, latmin, sphere_output_precision, latsec);
                         break;
 
-      default         : if(sphere_output_precision==-1) {
-                          sprintf ( buffer , "(%.*g , %.*g)", DBL_DIG, sp->lng, DBL_DIG, sp->lat );
-                        } else {
-                          sprintf ( buffer , "(%*.*f , %*.*f)", sopd+9, sopd+6, sp->lng, sopd+9, sopd+6, sp->lat );
-                        }
+      default         : sprintf ( buffer , "(%.*g , %.*g)", sphere_output_precision, sp->lng, sphere_output_precision, sp->lat );
                         break;
     }
 
@@ -271,43 +234,22 @@ static short int sphere_output_precision = -1;
     unsigned int rdeg , rmin;
     double rsec;
 
-    short int sopd=sphere_output_precision;
-    short int sopl=( sopd>0 )? sopd+3 : sopd+2;
-
     rdeg = rmin = 0;
     rsec = 0.0;
 
     switch ( sphere_output ){
 
-      case OUTPUT_DEG : if(sphere_output_precision==-1) {
-                          sprintf ( buffer , "<%s , %.*gd>", pointstr, DBL_DIG, RADIANS*c->radius );
-                        } else {
-                          sprintf ( buffer , "<%s , %*.*fd>", pointstr, sopd+8, sopd+4, RADIANS*c->radius );
-                        }
+      case OUTPUT_DEG : sprintf ( buffer , "<%s , %.*gd>", pointstr, sphere_output_precision, RADIANS*c->radius );
                         break;
       case OUTPUT_HMS :
       case OUTPUT_DMS : rad_to_dms ( c->radius , &rdeg, &rmin, &rsec );
-                        if(sphere_output_precision==-1) {
-                          sprintf ( 
+                        sprintf (
                             buffer ,
                             "<%s , %2ud %2um %.*gs>",
                             pointstr,
-                            rdeg, rmin, DBL_DIG, rsec
-                          );
-                        } else {
-                          sprintf ( 
-                            buffer ,
-                            "<%s , %02ud %02um %0*.*fs>",
-                            pointstr,
-                            rdeg, rmin, sopl, sopd, rsec
-                          );
-                        }
+                            rdeg, rmin, sphere_output_precision, rsec);
                         break;
-      default         : if(sphere_output_precision==-1) {
-                          sprintf ( buffer , "<%s , %.*g>", pointstr, DBL_DIG, c->radius );
-                        } else {
-                          sprintf ( buffer , "<%s , %*.*f>", pointstr, sopd+9, sopd+6, c->radius );
-                        }
+      default         : sprintf ( buffer , "<%s , %.*g>", pointstr, sphere_output_precision, c->radius );
                         break;
     }
 
@@ -325,58 +267,31 @@ static short int sphere_output_precision = -1;
     unsigned int rdeg[3] , rmin[3];
     double rsec[3];
     SPoint sp;
-    
-    short int sopd=sphere_output_precision;
-    short int sopl=( sopd>0 )? sopd+3 : sopd+2;
 
     sp.lng   =   e->psi  ;
     sp.lat   = - e->theta;
     pointstr = DatumGetPointer( DirectFunctionCall1 ( spherepoint_out , PointerGetDatum(&sp) ) );
 
-
     switch ( sphere_output ){
 
-      case OUTPUT_DEG : if(sphere_output_precision==-1) {
-                          sprintf ( buffer , "<{ %.*gd , %.*gd }, %s , %.*gd>", 
-                            DBL_DIG, RADIANS*(e->rad[0]), DBL_DIG, RADIANS*(e->rad[1]),
-                            pointstr, DBL_DIG, RADIANS*(e->phi) );
-                        } else {
-                          sprintf ( buffer , "<{ %*.*fd , %*.*fd }, %s , %*.*fd>", 
-                            sopd+8, sopd+4, RADIANS*(e->rad[0]),
-                            sopd+8, sopd+4, RADIANS*(e->rad[1]),
-                            pointstr, sopd+8, sopd+4, RADIANS*(e->phi) );
-                        }
+      case OUTPUT_DEG : sprintf ( buffer , "<{ %.*gd , %.*gd }, %s , %.*gd>",
+                            sphere_output_precision, RADIANS*(e->rad[0]), sphere_output_precision, RADIANS*(e->rad[1]),
+                            pointstr, sphere_output_precision, RADIANS*(e->phi) );
                         break;
       case OUTPUT_HMS :
       case OUTPUT_DMS : rad_to_dms ( e->rad[0] , &rdeg[0], &rmin[0], &rsec[0] );
                         rad_to_dms ( e->rad[1] , &rdeg[1], &rmin[1], &rsec[1] );
                         rad_to_dms ( e->phi    , &rdeg[2], &rmin[2], &rsec[2] );
-                        if(sphere_output_precision==-1) {
-                          sprintf ( buffer ,
+                        sprintf ( buffer ,
                             "<{ %2ud %2um %.*gs , %2ud %2um %.*gs }, %s , %2ud %2um %.*gs>",
-                            rdeg[0], rmin[0], DBL_DIG, rsec[0],
-                            rdeg[1], rmin[1], DBL_DIG, rsec[1],
+                            rdeg[0], rmin[0], sphere_output_precision, rsec[0],
+                            rdeg[1], rmin[1], sphere_output_precision, rsec[1],
                             pointstr,
-                            rdeg[2], rmin[2], DBL_DIG, rsec[2] );
-                        } else {
-                          sprintf ( buffer ,
-                            "<{ %02ud %02um %*.*fs , %02ud %02um %*.*fs }, %s , %02ud %02um %*.*fs>",
-                            rdeg[0], rmin[0], sopl, sopd, rsec[0],
-                            rdeg[1], rmin[1], sopl, sopd, rsec[1],
-                            pointstr,
-                            rdeg[2], rmin[2], sopl, sopd, rsec[2] );
-                        }
+                            rdeg[2], rmin[2], sphere_output_precision, rsec[2] );
                         break;
-      default         : if(sphere_output_precision==-1) {
-                          sprintf ( buffer , "<{ %.*g , %.*g }, %s , %.*g>",
-                            DBL_DIG, e->rad[0], DBL_DIG, e->rad[1],
-                            pointstr, DBL_DIG, e->phi );
-                        } else {
-                          sprintf ( buffer , "<{ %*.*f , %*.*f }, %s , %*.*f>",
-                            sopd+8, sopd+6, e->rad[0],
-                            sopd+8, sopd+6, e->rad[1],
-                            pointstr, sopd+8, sopd+6, e->phi );
-                        }
+      default         : sprintf ( buffer , "<{ %.*g , %.*g }, %s , %.*g>",
+                            sphere_output_precision, e->rad[0], sphere_output_precision, e->rad[1],
+                            pointstr, sphere_output_precision, e->phi );
                         break;
     }
 
@@ -394,9 +309,6 @@ static short int sphere_output_precision = -1;
     unsigned int rdeg , rmin;
     double rsec;
 
-    short int sopd=sphere_output_precision;
-    short int sopl=( sopd>0 )? sopd+3 : sopd+2;
-
     rdeg = rmin = 0;
     rsec = 0.0;
     
@@ -410,33 +322,16 @@ static short int sphere_output_precision = -1;
 
     switch ( sphere_output ){
 
-      case OUTPUT_DEG : if(sphere_output_precision==-1) {
-                          sprintf ( out , "( %s ), %.*gd", tstr, DBL_DIG, RADIANS*sl->length );
-                        } else {
-                          sprintf ( out , "( %s ), %*.*fd", tstr, sopd+8, sopd+4, RADIANS*sl->length );
-                        }
+      case OUTPUT_DEG : sprintf ( out , "( %s ), %.*gd", tstr, sphere_output_precision, RADIANS*sl->length );
                         break;
       case OUTPUT_HMS :
       case OUTPUT_DMS : rad_to_dms ( sl->length , &rdeg, &rmin, &rsec );
-                        if(sphere_output_precision==-1) {
-                          sprintf ( 
+                        sprintf (
                             out ,
                             "( %s ), %2ud %2um %.*gs",
-                            tstr, rdeg, rmin, DBL_DIG, rsec
-                          );
-                        } else {
-                          sprintf ( 
-                            out ,
-                            "( %s ), %02ud %02um %0*.*fs",
-                            tstr, rdeg, rmin, sopl, sopd, rsec
-                          );
-                        }
+                            tstr, rdeg, rmin, sphere_output_precision, rsec);
                         break;
-      default         : if(sphere_output_precision==-1) {
-                          sprintf ( out , "( %s ), %.*g", tstr, DBL_DIG, sl->length );
-                        } else {
-                          sprintf ( out , "( %s ), %*.*f", tstr, sopd+8, sopd+6, sl->length );
-                        }
+      default         : sprintf ( out , "( %s ), %.*g", tstr, sphere_output_precision, sl->length );
                         break;
     }
 
@@ -455,9 +350,6 @@ static short int sphere_output_precision = -1;
     unsigned int rdeg , rmin;
     double rsec;
 
-    short int sopd=sphere_output_precision;
-    short int sopl=( sopd>0 )? sopd+3 : sopd+2;
-
     val[0].lat = val[1].lat = val[2].lat = 0.0;
     val[0].lng = se->phi;
     val[1].lng = se->theta;
@@ -474,33 +366,16 @@ static short int sphere_output_precision = -1;
       rsec = 0.0;
       switch ( sphere_output ){
 
-        case OUTPUT_DEG : if(sphere_output_precision==-1) {
-                            sprintf ( &buf[0] , "%.*gd", DBL_DIG, RADIANS*val[i].lng );
-                          } else {
-                            sprintf ( &buf[0] , "%*.*fd", sopd+8, sopd+4, RADIANS*val[i].lng );
-                          }
+        case OUTPUT_DEG : sprintf ( &buf[0] , "%.*gd", sphere_output_precision, RADIANS*val[i].lng );
                           break;
         case OUTPUT_HMS :
         case OUTPUT_DMS : rad_to_dms ( val[i].lng , &rdeg, &rmin, &rsec );
-                          if(sphere_output_precision==-1) {
-                            sprintf ( 
+                          sprintf (
                               &buf[0] ,
                               "%2ud %2um %.*gs",
-                              rdeg, rmin, DBL_DIG, rsec
-                            );
-                          } else {
-                            sprintf ( 
-                              &buf[0] ,
-                              "%02ud %02um %0*.*fs",
-                              rdeg, rmin, sopl, sopd, rsec
-                            );
-                          }
+                              rdeg, rmin, sphere_output_precision, rsec);
                           break;
-        default         : if(sphere_output_precision==-1) {
-                            sprintf ( &buf[0] , "%.*g", DBL_DIG, val[i].lng );
-                          } else {
-                            sprintf ( &buf[0] , "%*.*f", sopd+9, sopd+6, val[i].lng );
-                          }
+        default         : sprintf ( &buf[0] , "%.*g", sphere_output_precision, val[i].lng );
                           break;
       }
       strcat( &buf[0], ", ");
