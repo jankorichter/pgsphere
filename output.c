@@ -460,6 +460,6 @@ static short int sphere_output_precision = DBL_DIG;
   Datum pg_sphere_version(PG_FUNCTION_ARGS)
   {
     char  * buffer   =  ( char * ) MALLOC (20);
-    sprintf ( buffer, "1.1.1");
+    sprintf ( buffer, "1.2.0");
     PG_RETURN_CSTRING ( buffer );
   }
